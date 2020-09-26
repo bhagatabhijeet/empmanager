@@ -24,5 +24,5 @@ CFonts.say('Emp.Manager', {
 
 console.log(`
 ${boxen(`Developer : Abhijeet Bhagat (https://github.com/bhagatabhijeet)
-GitHub Repo : https://github.com/bhagatabhijeet/empmanager`,{borderColor:"blueBright",align:"left",padding:2})}`
+GitHub Repo : https://github.com/bhagatabhijeet/empmanager`,{borderColor:"blueBright",align:"center",padding:1})}`
 );
