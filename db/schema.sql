@@ -18,11 +18,12 @@ CREATE TABLE `department` (
 
 CREATE TABLE `role` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(30) DEFAULT NULL,
-  `salary` decimal(8,0) DEFAULT NULL,
+  `title` varchar(30) NOT NULL,
+  `salary` decimal(8,0) NOT NULL,
   `department_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_dept_idx` (`department_id`),
+  UNIQUE INDEX `title_UNIQUE` (`title` ASC) VISIBLE,
   CONSTRAINT `fk_dept` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
