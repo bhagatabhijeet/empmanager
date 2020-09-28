@@ -98,7 +98,7 @@ async function init() {
                 await Role.viewAllRolesForDepartment();
                 break;
             case 'ADD NEW ROLE':
-                console.log("Not Implemented");
+                await Role.addNewRole();
                 break;
             case 'UPDATE ROLE':
                 console.log("Not Implemented");

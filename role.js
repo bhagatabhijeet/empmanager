@@ -1,12 +1,9 @@
 const db = require('./database');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
+const Chalk = require('chalk');
 
 let Role = {
-
-    //   async addEmployee() {
-    //     console.log('Adding employee...');
-    //   },
 
     async viewAllRolesForDepartment() {
         const departments = await db.executeQuery('SELECT * FROM department');
@@ -44,6 +41,47 @@ let Role = {
         }
         catch (e) {
             console.log(e);
+        }
+    },
+
+    async addNewRole() {
+        const departments = await db.executeQuery('SELECT * FROM department');
+        console.log(departments);
+        let roleQuestions = [{
+            message: 'Select Department',
+            name: 'dept',
+            type: "rawlist",
+            choices: []
+        },
+        {
+            message: 'role title',
+            name: 'title',
+            type: "input"
+        },
+        {
+            message: 'role salary',
+            name: 'salary',
+            type: "input",
+
+        }];
+        departments.forEach(d => {
+            roleQuestions[0].choices.push(d.name);
+        })
+        let roleAnswers = await inquirer.prompt(roleQuestions);
+
+        const findDepartment = departments.find(e => e.name === roleAnswers.dept);
+
+        try {
+            await db.executeQuery(`INSERT INTO role (title,salary,department_id)
+        VALUES ('${roleAnswers.title}',${roleAnswers.salary},${findDepartment.id});`);
+            console.log(`${Chalk.green('New Role Added!')}`);
+            const addedRole = await db.executeQuery(`SELECT * 
+            FROM role WHERE department_id='${findDepartment.id}' 
+            ORDER BY id desc limit 1;`);
+            console.table(addedRole);
+        }
+        catch (err) {
+            console.log(err);
         }
     }
 }
