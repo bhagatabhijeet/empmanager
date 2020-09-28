@@ -3,6 +3,7 @@ const chalk = require("chalk");
 const inquirer = require('inquirer')
 const db = require('./database');
 const Employee = require('./employee');
+const Role = require('./role');
 
 
 // ***********************   WELCOME SCREEN ******************************************************************
@@ -10,7 +11,7 @@ const Employee = require('./employee');
 CFonts.say('Emp.Manager', {
     font: 'block',
     align: 'center',
-    colors: ['green','blue', 'red'],
+    colors: ['green', 'blue', 'red'],
     background: 'transparent',
     letterSpacing: 1,
     lineHeight: 1,
@@ -65,34 +66,65 @@ async function init() {
                     'View Total Utilized Budget Of Department',
                     'DB Seed Data'
                 ]
-            }
-            // ,
-            // {
-            //     message:"Select the option for seeding",
-            //     name: 'dboperation',
-            //     type:'expand',
-            //     choices:[{
-            //         key:'s',
-            //         name:'Create Schema Only',
-            //         value:'createSchemaOnly',
-            //     },{
-            //         key:'d',
-            //         name:'Re-Seed Entire Schema',
-            //         value:'createSchemaAndData',
-            //     }]
-
-
-            // }
-
+            }            
         ]);
         console.log(empoperation);
         switch (empoperation.operation.toUpperCase()) {
             case 'VIEW ALL EMPLOYEES':
                 await Employee.viewAllEmployees();
                 break;
+            case 'VIEW ALL EMPLOYEES BY DEPARTMENT':
+                console.log("Not Implemented");
+                break;
+            case 'VIEW ALL EMPLYEES BY MANAGER':
+                console.log("Not Implemented");
+                break;
+            case 'ADD EMPLOYEE':
+                console.log("Not Implemented");
+                break;
+            case 'REMOVE EMPLOYEE':
+                console.log("Not Implemented");
+                break;
+            case 'UPDATE EMPLOYEE ROLE':
+                console.log("Not Implemented");
+                break;
+            case 'UPDATE EMPLOYEE MANAGER':
+                console.log("Not Implemented");
+                break;
+            case 'VIEW ALL ROLES':
+                await Role.viewAllRoles();
+                break;
+            case 'VIEW ALL ROLES FOR A DEPARTMENT':
+                await Role.viewAllRolesForDepartment();
+                break;
+            case 'ADD NEW ROLE':
+                console.log("Not Implemented");
+                break;
+            case 'UPDATE ROLE':
+                console.log("Not Implemented");
+                break;
+            case 'DELETE ROLE':
+                console.log("Not Implemented");
+                break;
+            case 'VIEW ALL DEPARTMENTS':
+                console.log("Not Implemented");
+                break;
+            case 'ADD NEW DEPARTMENT':
+                console.log("Not Implemented");
+                break;
+            case 'UPDATE DEPARTMENT':
+                console.log("Not Implemented");
+                break;
+            case 'DELETE DEPARTMENT':
+                console.log("Not Implemented");
+                break;
+            case 'VIEW TOTAL UTILIZED BUDGET OF DEPARTMENT':
+                console.log("Not Implemented");
+                break;
             case 'DB SEED DATA':
                 await db.seedData();
                 break;
+
         }
 
         let continueQuestion = await inquirer.prompt([
