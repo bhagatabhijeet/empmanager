@@ -2,10 +2,10 @@
   "name": "empmanager",
   "version": "1.0.0",
   "description": "Emp. Manager  is a CLI application to view and manage the departments, roles, and employees",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node app.ts"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -19,11 +19,11 @@
   },
   "homepage": "https://github.com/bhagatabhijeet/empmanager#readme",
   "dependencies": {
-    "@types/node": "^14.11.2",
     "boxen": "^4.2.0",
     "cfonts": "^2.8.6",
     "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
     "mysql": "^2.18.1"
-  }
+  },
+  "devDependencies": {}
 }
