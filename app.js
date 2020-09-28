@@ -1,24 +1,22 @@
-// import * as mysql from "mysql";
 const CFonts = require('cfonts');
 const chalk = require("chalk");
 const inquirer = require('inquirer')
+const db = require('./database');
 const Employee = require('./employee');
 
-// import boxen, { BorderStyle } from "boxen";
-// import { formatWithOptions } from "util";
 
 // ***********************   WELCOME SCREEN ******************************************************************
 //#region welcomScreen 
 CFonts.say('Emp.Manager', {
     font: 'block',
     align: 'center',
-    colors: ['red', 'blue'],
+    colors: ['green','blue', 'red'],
     background: 'transparent',
     letterSpacing: 1,
     lineHeight: 1,
     space: true,
     maxLength: '0',
-    gradient: ['red', 'blue'],
+    gradient: false,
     independentGradient: false,
     transitionGradient: false,
     env: 'node'
@@ -26,19 +24,17 @@ CFonts.say('Emp.Manager', {
 
 console.log(chalk.magenta(`			Developer : Abhijeet Bhagat (https://github.com/bhagatabhijeet)`));
 console.log(`			GitHub Repo : https://github.com/bhagatabhijeet/empmanager`);
+console.log();
+console.log();
 //#endregion
 // ***********************************************************************************************************
 
 process.on('exit', (code) => {
-    console.log('bye');
+    console.log(`Thanks for using ${chalk.magentaBright('Emp.Manager!')}`);
 })
 
-process.on('SIGINT', () => {
-    console.log('Adios!');
-}
-);
-process.on('beforeExit',(c)=>{
-    console.log(c);
+process.on('beforeExit', (c) => {
+    console.log(`${chalk.magentaBright('Ok!')}`);
 });
 
 async function init() {
@@ -58,6 +54,7 @@ async function init() {
                     'Update Employee Role',
                     'Update Employee Manager',
                     'View All Roles',
+                    'View All Roles For A Department',
                     'Add New Role',
                     'Update Role',
                     'Delete Role',
@@ -65,16 +62,37 @@ async function init() {
                     'Add New Department',
                     'Update Department',
                     'Delete Department',
-                    'View Total Utilized Budget Of Department'
-
+                    'View Total Utilized Budget Of Department',
+                    'DB Seed Data'
                 ]
             }
-            
+            // ,
+            // {
+            //     message:"Select the option for seeding",
+            //     name: 'dboperation',
+            //     type:'expand',
+            //     choices:[{
+            //         key:'s',
+            //         name:'Create Schema Only',
+            //         value:'createSchemaOnly',
+            //     },{
+            //         key:'d',
+            //         name:'Re-Seed Entire Schema',
+            //         value:'createSchemaAndData',
+            //     }]
+
+
+            // }
+
         ]);
         console.log(empoperation);
         switch (empoperation.operation.toUpperCase()) {
             case 'VIEW ALL EMPLOYEES':
-                await Employee.viewAllEmployees();               
+                await Employee.viewAllEmployees();
+                break;
+            case 'DB SEED DATA':
+                await db.seedData();
+                break;
         }
 
         let continueQuestion = await inquirer.prompt([
@@ -86,8 +104,8 @@ async function init() {
         ]);
         continueAsking = continueQuestion.continueAsking;
     }
+    process.exit(0);
 }
-
 
 
 init();
