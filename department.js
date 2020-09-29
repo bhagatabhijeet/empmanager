@@ -35,7 +35,7 @@ let Department = {
             console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is Updated to '${departmentUpdateAnswer.updatedept}'!`)}`);
             }
             catch(err){
-                console.log(err);
+                console.log(err.sqlMessage);
             }        
         }
         catch (e) {
@@ -62,7 +62,7 @@ let Department = {
             console.table(addedDepartment);
         }
         catch (err) {
-            console.log(err);
+            console.log(err.sqlMessage);
         }
     },
     async deleteDepartment(){

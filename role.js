@@ -81,7 +81,7 @@ let Role = {
             console.table(addedRole);
         }
         catch (err) {
-            console.log(err);
+            console.log(err.sqlMessage);
         }
     },
     async deleteRole(){
