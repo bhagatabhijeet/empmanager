@@ -4,6 +4,7 @@ const inquirer = require('inquirer')
 const db = require('./database');
 const Employee = require('./employee');
 const Role = require('./role');
+const Department = require('./department');
 
 
 // ***********************   WELCOME SCREEN ******************************************************************
@@ -68,7 +69,7 @@ async function init() {
                 ]
             }            
         ]);
-        console.log(empoperation);
+        // console.log(empoperation);
         switch (empoperation.operation.toUpperCase()) {
             case 'VIEW ALL EMPLOYEES':
                 await Employee.viewAllEmployees();
@@ -107,16 +108,16 @@ async function init() {
                 await Role.deleteRole();
                 break;
             case 'VIEW ALL DEPARTMENTS':
-                console.log("Not Implemented");
+                await Department.viewAllDepartments();
                 break;
             case 'ADD NEW DEPARTMENT':
-                console.log("Not Implemented");
+                await Department.addNewDepartment();
                 break;
             case 'UPDATE DEPARTMENT':
-                console.log("Not Implemented");
+                await Department.updateDepartment();
                 break;
             case 'DELETE DEPARTMENT':
-                console.log("Not Implemented");
+                await Department.deleteDepartment();
                 break;
             case 'VIEW TOTAL UTILIZED BUDGET OF DEPARTMENT':
                 console.log("Not Implemented");
