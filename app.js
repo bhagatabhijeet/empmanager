@@ -104,7 +104,7 @@ async function init() {
                 console.log("Not Implemented");
                 break;
             case 'DELETE ROLE':
-                console.log("Not Implemented");
+                await Role.deleteRole();
                 break;
             case 'VIEW ALL DEPARTMENTS':
                 console.log("Not Implemented");

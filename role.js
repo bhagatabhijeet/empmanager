@@ -83,6 +83,32 @@ let Role = {
         catch (err) {
             console.log(err);
         }
+    },
+    async deleteRole(){
+        try {
+            const roles = await db.executeQuery("SELECT * FROM ROLE");
+            let roleQuestion = [{
+                message: 'Select Role To Delete',
+                name: 'role',
+                type: "rawlist",
+                choices: []
+            
+            }];
+            roles.forEach(r=>roleQuestion[0].choices.push(r.title));
+            const roleAnswer = await inquirer.prompt(roleQuestion);
+            try{
+            await db.executeQuery(`DELETE FROM role WHERE title='${roleAnswer.role}';`);
+            console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
+            }
+            catch(err){
+                console.log(err);
+            }
+
+            
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
 }
 
