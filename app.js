@@ -76,7 +76,7 @@ async function init() {
             }            
         ]);
         // console.log(empoperation);
-        
+
         // Two blank lines on the console.Just for better looking.
         console.log();console.log();
 
@@ -129,7 +129,9 @@ async function init() {
                 }
                 break;
             case 'DELETE DEPARTMENT':
-                await Department.deleteDepartment();
+                if(await Department.deleteDepartment()  === 'MAIN_MENU'){
+                    continue;
+                }
                 break;
             case 'VIEW TOTAL UTILIZED BUDGET OF DEPARTMENT':
                 console.log("Not Implemented");
