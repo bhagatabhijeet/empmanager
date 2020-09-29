@@ -11,7 +11,8 @@ DROP TABLE IF EXISTS `department`;
 CREATE TABLE `department` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(30) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE;
 ); 
 
 -- Table structure for table `role`
