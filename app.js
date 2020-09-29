@@ -54,7 +54,7 @@ async function init() {
                 choices: [
                     'View All Employees',
                     'View All Employees By Department',
-                    'View All Emplyees By Manager',
+                    'View All Employees By Manager',
                     'Add Employee',
                     'Remove Employee',
                     'Update Employee Role',
@@ -87,8 +87,8 @@ async function init() {
             case 'VIEW ALL EMPLOYEES BY DEPARTMENT':
                 console.log("Not Implemented");
                 break;
-            case 'VIEW ALL EMPLYEES BY MANAGER':
-                console.log("Not Implemented");
+            case 'VIEW ALL EMPLOYEES BY MANAGER':
+                await Employee.viewAllEmployeesByManager();
                 break;
             case 'ADD EMPLOYEE':
                 console.log("Not Implemented");
