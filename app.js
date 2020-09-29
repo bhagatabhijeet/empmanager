@@ -94,7 +94,7 @@ async function init() {
                 console.log("Not Implemented");
                 break;
             case 'REMOVE EMPLOYEE':
-                console.log("Not Implemented");
+                await Employee.removeEmployee();
                 break;
             case 'UPDATE EMPLOYEE ROLE':
                 console.log("Not Implemented");

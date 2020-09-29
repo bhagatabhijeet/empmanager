@@ -34,8 +34,7 @@ let Employee = {
     catch (e) {
       console.log(e);
     }
-  }
-  ,
+  },
   async viewAllEmployeesByManager() {
     let managerQuestion = [{
       message: 'Enter Manager Name : ',
@@ -49,12 +48,70 @@ let Employee = {
         INNER JOIN employee e2
         ON e1.manager_id = e2.id
         WHERE e2.first_name LIKE '%${managerAnswer.manager}%';`);
-     
+
       if (employees.length > 0) {
         console.table(employees);
       }
       else {
         console.log(`${Chalk.green(`No Records Found!!`)}`);
+      }
+    }
+    catch (err) {
+      console.log(err.sqlMessage);
+    }
+  },
+  async removeEmployee() {
+    let empQuestion = [{
+      message: 'Enter Employee Firstname : ',
+      name: 'empfirst',
+      type: "input"
+    },
+    {
+      message: 'Enter Employee Lastname : ',
+      name: 'emplast',
+      type: "input"
+    }
+    ];
+    let empAnswer = await inquirer.prompt(empQuestion);
+
+    // First Query Employee Table to check if record count is more than one
+    try {
+      let employees = await db.executeQuery(`
+        SELECT id,first_name,last_name FROM employee        
+        WHERE first_name LIKE '%${empAnswer.empfirst}%' and last_name like '%${empAnswer.emplast}%';`);
+
+      if (employees.length > 0) {
+        console.log(`${Chalk.green(`More than 1 record found. Select among the following to remove`)}`);
+        const choices = [];
+        employees.forEach(e => {
+          choices.push(`${e.id}:${e.first_name} ${e.last_name}`);
+        });
+        let empDelSelect = await inquirer.prompt([{
+          message: "Select Employee To Remove >>",
+          name: 'delemp',
+          type: 'rawlist',
+          pageSize: 12,
+          choices: choices
+        }]);
+        let empIdToDelete = empDelSelect.delemp.split(':')[0];
+        console.log(empIdToDelete);
+        try {
+          await db.executeQuery(`DELETE FROM employee WHERE id=${empIdToDelete}`);
+          console.log(`${Chalk.green(`Employee with Empoyee Id : ${empIdToDelete} Removed!`)}`);
+        }
+        catch (err) {
+          console.log(err.sqlMessage);
+        }
+
+      }
+      else {
+        try {
+          await db.executeQuery(`DELETE FROM employee WHERE first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%'`);
+          console.log(`${Chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}`);
+        }
+        catch (err) {
+          console.log(err.sqlMessage);
+        }
       }
     }
     catch (err) {
