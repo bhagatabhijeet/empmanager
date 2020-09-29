@@ -41,12 +41,16 @@ process.on('beforeExit', (c) => {
 
 async function init() {
     let continueAsking = true;
+    var ui = new inquirer.ui.BottomBar();
+    
     while (continueAsking) {
+        ui.updateBottomBar(`${chalk.bgMagenta('[Enter Number To Select Operation Or Select Using Arrow Keys]')}\n`);
         let empoperation = await inquirer.prompt([
             {
                 message: 'What would you like to do? >>',
                 name: 'operation',
                 type: "rawlist",
+                pageSize:12,
                 choices: [
                     'View All Employees',
                     'View All Employees By Department',
@@ -65,11 +69,17 @@ async function init() {
                     'Update Department',
                     'Delete Department',
                     'View Total Utilized Budget Of Department',
-                    'DB Seed Data'
+                    'DB Seed Data',
+                    new inquirer.Separator(),
+                    'Exit'
                 ]
             }            
         ]);
         // console.log(empoperation);
+        
+        // Two blank lines on the console.Just for better looking.
+        console.log();console.log();
+
         switch (empoperation.operation.toUpperCase()) {
             case 'VIEW ALL EMPLOYEES':
                 await Employee.viewAllEmployees();
@@ -114,7 +124,9 @@ async function init() {
                 await Department.addNewDepartment();
                 break;
             case 'UPDATE DEPARTMENT':
-                await Department.updateDepartment();
+                if(await Department.updateDepartment() === 'MAIN_MENU'){
+                    continue;
+                }
                 break;
             case 'DELETE DEPARTMENT':
                 await Department.deleteDepartment();
@@ -125,12 +137,13 @@ async function init() {
             case 'DB SEED DATA':
                 await db.seedData();
                 break;
-
+            case 'EXIT':
+                process.exit(0);         
         }
 
         let continueQuestion = await inquirer.prompt([
             {
-                message: 'Continue? : ',
+                message: chalk.bgMagenta('Continue? : '),
                 type: 'confirm',
                 name: 'continueAsking'
             }
