@@ -16,11 +16,17 @@ let Department = {
                 message: 'Select Department To Update >>',
                 name: 'dept',
                 type: "rawlist",
+                pageSize:12,
                 choices: []
             
             }];
             departments.forEach(d=>departmentQuestion[0].choices.push(d.name));
+            departmentQuestion[0].choices.push(new inquirer.Separator());
+            departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
+            if(departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU"){
+                return "MAIN_MENU";
+            }
 
             let departmentUpdateQuestion = [{
                 message: 'Enter Department Name : ',
@@ -72,11 +78,17 @@ let Department = {
                 message: 'Select Department To Delete >>',
                 name: 'dept',
                 type: "rawlist",
+                pageSize:12,
                 choices: []
             
             }];
             departments.forEach(d=>departmentQuestion[0].choices.push(d.name));
+            departmentQuestion[0].choices.push(new inquirer.Separator());
+            departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
+            if(departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU"){
+                return "MAIN_MENU";
+            }
             try{
             await db.executeQuery(`DELETE FROM department WHERE name='${departmentAnswer.dept}';`);
             console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is deleted!`)}`);
@@ -84,8 +96,6 @@ let Department = {
             catch(err){
                 console.log(err);
             }
-
-            
         }
         catch (e) {
             console.log(e);
