@@ -9,7 +9,7 @@ let Role = {
         const departments = await db.executeQuery('SELECT * FROM department');
         console.log(departments);
         let departmentQuestion = [{
-            message: 'Select Department',
+            message: 'Select Department >>',
             name: 'dept',
             type: "rawlist",
             choices: []
@@ -48,18 +48,18 @@ let Role = {
         const departments = await db.executeQuery('SELECT * FROM department');
         console.log(departments);
         let roleQuestions = [{
-            message: 'Select Department',
+            message: 'Select Department >>',
             name: 'dept',
             type: "rawlist",
             choices: []
         },
         {
-            message: 'role title',
+            message: 'role title : ',
             name: 'title',
             type: "input"
         },
         {
-            message: 'role salary',
+            message: 'role salary : ',
             name: 'salary',
             type: "input",
 
@@ -88,7 +88,7 @@ let Role = {
         try {
             const roles = await db.executeQuery("SELECT * FROM ROLE");
             let roleQuestion = [{
-                message: 'Select Role To Delete',
+                message: 'Select Role To Delete >>',
                 name: 'role',
                 type: "rawlist",
                 choices: []

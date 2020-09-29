@@ -13,7 +13,7 @@ let Department = {
         try {
             const departments = await db.executeQuery("SELECT * FROM department");
             let departmentQuestion = [{
-                message: 'Select Department To Update',
+                message: 'Select Department To Update >>',
                 name: 'dept',
                 type: "rawlist",
                 choices: []
@@ -23,7 +23,7 @@ let Department = {
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
 
             let departmentUpdateQuestion = [{
-                message: 'Enter Department Name',
+                message: 'Enter Department Name : ',
                 name: 'updatedept',
                 type: "input"            
             }];
@@ -45,7 +45,7 @@ let Department = {
 
     async addNewDepartment() {
         let departmentQuestion = [{
-            message: 'Enter Department Name',
+            message: 'Enter Department Name : ',
             name: 'dept',
             type: "input"            
         }];
@@ -69,7 +69,7 @@ let Department = {
         try {
             const departments = await db.executeQuery("SELECT * FROM department");
             let departmentQuestion = [{
-                message: 'Select Department To Delete',
+                message: 'Select Department To Delete >>',
                 name: 'dept',
                 type: "rawlist",
                 choices: []

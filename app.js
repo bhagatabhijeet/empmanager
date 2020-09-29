@@ -44,7 +44,7 @@ async function init() {
     while (continueAsking) {
         let empoperation = await inquirer.prompt([
             {
-                message: 'What would you like to do?',
+                message: 'What would you like to do? >>',
                 name: 'operation',
                 type: "rawlist",
                 choices: [
@@ -130,7 +130,7 @@ async function init() {
 
         let continueQuestion = await inquirer.prompt([
             {
-                message: 'Continue?',
+                message: 'Continue? : ',
                 type: 'confirm',
                 name: 'continueAsking'
             }
