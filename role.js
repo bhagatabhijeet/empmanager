@@ -1,4 +1,5 @@
-const db = require('./database');
+const roleORM = require('./orm/roleorm');
+const departmentORM = require('./orm/deptorm');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 const Chalk = require('chalk');
@@ -6,51 +7,53 @@ const Chalk = require('chalk');
 let Role = {
 
     async viewAllRolesForDepartment() {
-        const departments = await db.executeQuery('SELECT * FROM department');
-        console.log(departments);
         let departmentQuestion = [{
             message: 'Select Department >>',
             name: 'dept',
             type: "rawlist",
+            pageSize:12,
             choices: []
         }];
-        departments.forEach(d => {
-            departmentQuestion[0].choices.push(d.name);
-        })
+        departmentQuestion[0].choices = await departmentORM.getAllAsList();
+        departmentQuestion[0].choices.push(new inquirer.Separator());
+        departmentQuestion[0].choices.push('Back To Main Menu');
+        
         let selectedDepartment = await inquirer.prompt(departmentQuestion);
-
-        const rolesfordpartment = await db.executeQuery(`
-        SELECT *
-        FROM  role r
-            INNER JOIN
-        department d 
-        ON r.department_id = d.id
-        WHERE
-        d.name = '${selectedDepartment.dept}';`);
-
-        console.table(rolesfordpartment);
-
-    },
-    async viewAllRoles() {
-
-        let sqlQuery = `SELECT * FROM role;`;
+        if (selectedDepartment.dept.toUpperCase() === "BACK TO MAIN MENU") {
+            return "MAIN_MENU";
+        }
 
         try {
-            const result = await db.executeQuery(sqlQuery);
+            const roles = await roleORM.get({
+                sql: `SELECT r.id,r.title,r.salary,d.id as 'department_id',d.name as 'department_name'
+                    FROM  role r
+                        INNER JOIN
+                    department d 
+                    ON r.department_id = d.id`,
+                where: `d.name = '${selectedDepartment.dept}'`
+            });
+            console.table(roles);
+        }
+        catch (err) {
+            console.log(`${Chalk.yellow(err.sqlMessage)}`);
+        }
+    },
+    async viewAllRoles() {
+        try {
+            const result = await roleORM.getAll();
             console.table(result);
         }
-        catch (e) {
-            console.log(e);
+        catch (err) {
+            console.log(`${Chalk.yellow(err.sqlMessage)}`);
         }
     },
 
     async addNewRole() {
-        const departments = await db.executeQuery('SELECT * FROM department');
-        console.log(departments);
         let roleQuestions = [{
             message: 'Select Department >>',
             name: 'dept',
             type: "rawlist",
+            pageSize:12,
             choices: []
         },
         {
@@ -64,47 +67,117 @@ let Role = {
             type: "input",
 
         }];
-        departments.forEach(d => {
-            roleQuestions[0].choices.push(d.name);
-        })
+
+        roleQuestions[0].choices = await departmentORM.getAllAsList();
+        roleQuestions[0].choices.push(new inquirer.Separator());
+        roleQuestions[0].choices.push('Back To Main Menu');
+
         let roleAnswers = await inquirer.prompt(roleQuestions);
-
-        const findDepartment = departments.find(e => e.name === roleAnswers.dept);
-
+        if (roleAnswers.dept.toUpperCase() === "BACK TO MAIN MENU") {
+            return "MAIN_MENU";
+        }
+        const departments = await departmentORM.getAll();
+        const findDepartment = await departments.find(e => e.name === roleAnswers.dept);
         try {
-            await db.executeQuery(`INSERT INTO role (title,salary,department_id)
-        VALUES ('${roleAnswers.title}',${roleAnswers.salary},${findDepartment.id});`);
-            console.log(`${Chalk.green('New Role Added!')}`);
-            const addedRole = await db.executeQuery(`SELECT * 
-            FROM role WHERE department_id='${findDepartment.id}' 
-            ORDER BY id desc limit 1;`);
+            const addRoleResult = await roleORM.add(roleAnswers.title, roleAnswers.salary, findDepartment.id);
+            const addedRole = await roleORM.getAll({
+                where: `department_id='${findDepartment.id}'`,
+                orderBy: `id desc`,
+                limit: '1'
+            });
             console.table(addedRole);
         }
         catch (err) {
-            console.log(err.sqlMessage);
+            console.log(`${Chalk.yellow(err.sqlMessage)}`);
         }
     },
-    async deleteRole(){
+    async deleteRole() {
         try {
-            const roles = await db.executeQuery("SELECT * FROM ROLE");
             let roleQuestion = [{
                 message: 'Select Role To Delete >>',
                 name: 'role',
                 type: "rawlist",
+                pageSize:12,
                 choices: []
-            
+
             }];
-            roles.forEach(r=>roleQuestion[0].choices.push(r.title));
+            roleQuestion[0].choices = await roleORM.getAllAsList();
+            roleQuestion[0].choices.push(new inquirer.Separator());
+            roleQuestion[0].choices.push('Back To Main Menu');
             const roleAnswer = await inquirer.prompt(roleQuestion);
-            try{
-            await db.executeQuery(`DELETE FROM role WHERE title='${roleAnswer.role}';`);
-            console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
-            }
-            catch(err){
-                console.log(err);
+            if (roleAnswer.role.toUpperCase() === "BACK TO MAIN MENU") {
+                return "MAIN_MENU";
             }
 
-            
+            try {
+                await roleORM.deleteRows(`title='${roleAnswer.role}'`);
+                console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
+            }
+            catch (err) {
+                console.log(`${Chalk.yellow(err.sqlMessage)}`);
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+    },
+    async updateRole() {
+        try {
+            let roleQuestion = [{
+                message: 'Select Role To Update >>',
+                name: 'role',
+                type: "rawlist",
+                pageSize:12,
+                choices: []
+
+            },
+            {
+                message: 'Select New Department >>',
+                name: 'dept',
+                type: "rawlist",
+                pageSize:12,
+                choices: []
+
+            },
+            {
+                message: 'New role title : ',
+                name: 'title',
+                type: "input"
+            },
+            {
+                message: 'New role salary : ',
+                name: 'salary',
+                type: "input",
+
+            }
+            ];
+            roleQuestion[0].choices = await roleORM.getAllAsList();
+            roleQuestion[0].choices.push(new inquirer.Separator());
+            roleQuestion[0].choices.push('Back To Main Menu');
+
+            roleQuestion[1].choices = await departmentORM.getAllAsList();
+            roleQuestion[1].choices.push(new inquirer.Separator());
+            roleQuestion[1].choices.push('Back To Main Menu');
+            const roleAnswer = await inquirer.prompt(roleQuestion);
+            if (roleAnswer.role.toUpperCase() === "BACK TO MAIN MENU") {
+                return "MAIN_MENU";
+            }
+            if (roleAnswer.dept.toUpperCase() === "BACK TO MAIN MENU") {
+                return "MAIN_MENU";
+            }
+            const departments = await departmentORM.getAll();
+            const findDepartment = await departments.find(e => e.name === roleAnswer.dept);
+            try {
+                await roleORM.update(
+                    {
+                        set:`title='${roleAnswer.title}',salary=${roleAnswer.salary},department_id=${findDepartment.id}`,
+                        where:`title='${roleAnswer.role}'`
+                    });
+                console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is Updated to New Role : '${roleAnswer.title}'!`)}`);
+            }
+            catch (err) {
+                console.log(`${Chalk.yellow(err.sqlMessage)}`);
+            }
         }
         catch (e) {
             console.log(e);
