@@ -1,100 +1,115 @@
-const db = require('./database');
+const db = require('./orm/database');
+const departmentOrm = require('./orm/deptorm');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 const Chalk = require('chalk');
 
 let Department = {
 
-    async viewAllDepartments() {
-        const departments = await db.executeQuery('SELECT * FROM department');
-        console.table(departments);        
+    // Add new Department
+    async addNewDepartment() {
+        let departmentQuestion = [{
+            message: 'Enter Department Name : ',
+            name: 'dept',
+            type: "input"
+        }];
+        let departmentAnswer = await inquirer.prompt(departmentQuestion);
+
+        try {
+            const addResult = await departmentOrm.add(`${departmentAnswer.dept}`);
+
+            console.log(`${Chalk.green('New Department Added!')}`);
+            const addedDepartment = await departmentOrm.getAll({
+                where: `name='${departmentAnswer.dept}'`,
+                orderBy: `id desc`,
+                limit: '1'
+            });
+
+            console.table(addedDepartment);
+        }
+        catch (err) {
+            console.log(`${Chalk.yellow(err.sqlMessage)}`);
+        }
     },
+
+    // View All Departments
+    async viewAllDepartments() {
+        try {
+            const departments = await departmentOrm.getAll();
+            console.table(departments);
+        }
+        catch (err) {
+            console.log(`${Chalk.yellow(err.sqlMessage)}`);
+        }
+
+    },
+
+    // Update Department
     async updateDepartment() {
         try {
-            const departments = await db.executeQuery("SELECT * FROM department");
             let departmentQuestion = [{
                 message: 'Select Department To Update >>',
                 name: 'dept',
                 type: "rawlist",
-                pageSize:12,
+                pageSize: 12,
                 choices: []
-            
+
             }];
-            departments.forEach(d=>departmentQuestion[0].choices.push(d.name));
+            departmentQuestion[0].choices = await departmentOrm.getAllAsList();
             departmentQuestion[0].choices.push(new inquirer.Separator());
             departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
-            if(departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU"){
+            if (departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU") {
                 return "MAIN_MENU";
             }
 
             let departmentUpdateQuestion = [{
                 message: 'Enter Department Name : ',
                 name: 'updatedept',
-                type: "input"            
+                type: "input"
             }];
             let departmentUpdateAnswer = await inquirer.prompt(departmentUpdateQuestion);
 
-            try{
-            await db.executeQuery(`UPDATE department SET name='${departmentUpdateAnswer.updatedept}'
-            WHERE name='${departmentAnswer.dept}';`);
-            console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is Updated to '${departmentUpdateAnswer.updatedept}'!`)}`);
+            try {
+                const updateresult = await departmentOrm.update(
+                    {
+                        set: `name='${departmentUpdateAnswer.updatedept}'`,
+                        where: `name='${departmentAnswer.dept}'`
+                    });
+                console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is Updated to '${departmentUpdateAnswer.updatedept}'!`)}`);
             }
-            catch(err){
-                console.log(err.sqlMessage);
-            }        
+            catch (err) {
+                console.log(`${Chalk.yellow(err.sqlMessage)}`);
+            }
         }
         catch (e) {
             console.log(e);
         }
     },
-
-    async addNewDepartment() {
-        let departmentQuestion = [{
-            message: 'Enter Department Name : ',
-            name: 'dept',
-            type: "input"            
-        }];
-        let departmentAnswer = await inquirer.prompt(departmentQuestion);
-
+    
+    // Delete Department
+    async deleteDepartment() {
         try {
-            await db.executeQuery(`INSERT INTO department (name)
-            VALUES ('${departmentAnswer.dept}');`);
-
-            console.log(`${Chalk.green('New Department Added!')}`);
-            const addedDepartment = await db.executeQuery(`SELECT * 
-            FROM department WHERE name='${departmentAnswer.dept}' 
-            ORDER BY id desc limit 1;`);
-            console.table(addedDepartment);
-        }
-        catch (err) {
-            console.log(err.sqlMessage);
-        }
-    },
-    async deleteDepartment(){
-        try {
-            const departments = await db.executeQuery("SELECT * FROM department");
             let departmentQuestion = [{
                 message: 'Select Department To Delete >>',
                 name: 'dept',
                 type: "rawlist",
-                pageSize:12,
+                pageSize: 12,
                 choices: []
-            
             }];
-            departments.forEach(d=>departmentQuestion[0].choices.push(d.name));
+            departmentQuestion[0].choices = await departmentOrm.getAllAsList();
             departmentQuestion[0].choices.push(new inquirer.Separator());
             departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
-            if(departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU"){
+            if (departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU") {
                 return "MAIN_MENU";
             }
-            try{
-            await db.executeQuery(`DELETE FROM department WHERE name='${departmentAnswer.dept}';`);
-            console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is deleted!`)}`);
+            try {
+                const deleteResult = await departmentOrm.delete(`name='${departmentAnswer.dept}'`);
+                console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is deleted!`)}`);
             }
-            catch(err){
-                console.log(err);
+            catch (err) {
+                console.log(err.sqlMessage);
             }
         }
         catch (e) {
