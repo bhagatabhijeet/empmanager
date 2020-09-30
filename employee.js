@@ -1,13 +1,12 @@
 const empORM = require('./orm/emporm');
 const departmentORM = require('./orm/deptorm');
+const roleORM = require('./orm/roleorm');
 const inquirer = require('inquirer');
 const Chalk = require('chalk');
 const cTable = require('console.table');
 
 let Employee = {
-  async addEmployee() {
-    console.log('Adding employee...');
-  },
+
   async viewAllEmployees() {
     try {
       const result = await empORM.getAll();
@@ -94,7 +93,7 @@ let Employee = {
     // First Query Employee Table to check if record count is more than one
     try {
       let employees = await empORM.getAllNoJoin({
-        where:`first_name LIKE '%${empAnswer.empfirst}%' and last_name like '%${empAnswer.emplast}%'`
+        where: `first_name LIKE '%${empAnswer.empfirst}%' and last_name like '%${empAnswer.emplast}%'`
       });
 
       if (employees.length > 1) {
@@ -117,13 +116,13 @@ let Employee = {
         }
 
         let empIdToDelete = empDelSelect.delemp.split(':')[0];
-        
+
         try {
           await empORM.deleteRows(`id=${empIdToDelete}`)
           console.log(`${Chalk.green(`Employee with Empoyee Id : ${empIdToDelete} Removed!`)}`);
         }
         catch (err) {
-          console.log(err.sqlMessage);
+          console.log(`${Chalk.yellow(err.sqlMessage)}`);
         }
 
       }
@@ -133,13 +132,119 @@ let Employee = {
           console.log(`${Chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}`);
         }
         catch (err) {
-          console.log(err.sqlMessage);
+          console.log(`${Chalk.yellow(err.sqlMessage)}`);
         }
       }
     }
     catch (err) {
-      console.log(err.sqlMessage);
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
+  },
+  async addNewEmployee() {
+    let empQuestions = [
+      {
+        message: 'Firstname : ',
+        name: 'firstname',
+        type: "input"
+      },
+      {
+        message: 'Lastname : ',
+        name: 'lastname',
+        type: "input"
+      }];
+    let departmentQuestion = [
+      {
+        message: 'Select Department >>',
+        name: 'dept',
+        type: "rawlist",
+        pageSize: 12,
+        choices: []
+      }];
+    let roleQuestion = [
+      {
+        message: 'Select Role >>',
+        name: 'role',
+        type: "rawlist",
+        pageSize: 12,
+        choices: []
+      }];
+    let managerQuestion = [
+      {
+        message: 'Select Manager >>',
+        name: 'manager',
+        type: "rawlist",
+        pageSize: 12,
+        choices: []
+      }];
+
+    const empAnswers = await inquirer.prompt(empQuestions);
+
+    departmentQuestion[0].choices = await departmentORM.getAllAsList();
+    departmentQuestion[0].choices.push(new inquirer.Separator());
+    departmentQuestion[0].choices.push('Back To Main Menu');
+
+    const departmentAnswer = await inquirer.prompt(departmentQuestion);
+    if (departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU") {
+      return "MAIN_MENU";
+    }
+
+    const department = await departmentORM.getAll({
+      where: `name='${departmentAnswer.dept}'`
+    });
+
+    roleQuestion[0].choices = await roleORM.getAllAsList({
+      where: `department_id=${department[0].id}`
+    });
+    roleQuestion[0].choices.push(new inquirer.Separator());
+    roleQuestion[0].choices.push('Back To Main Menu');
+
+    let roleAnswer = await inquirer.prompt(roleQuestion);
+    if (roleAnswer.role.toUpperCase() === "BACK TO MAIN MENU") {
+      return "MAIN_MENU";
+    }
+    const role = await roleORM.getAll({
+      where: `title='${roleAnswer.role}'`
+    });
+    // console.log(role);
+
+    const EmployeesInDepartment = await empORM.getAll({
+      where: `d.name ='${departmentAnswer.dept}'`
+    });
+    
+    
+    EmployeesInDepartment.forEach(emp => {
+      managerQuestion[0].choices.push(emp.id + ":" + emp.first_name + " " + emp.last_name);
+    });
+    
+    const managerAnswer = await inquirer.prompt(managerQuestion);
+
+    try {
+      // console.log(role);
+      const empAddResult = empORM.add(empAnswers.firstname,empAnswers.lastname,role[0].id,managerAnswer.manager.split(':')[0]);
+      if(empAddResult.affectedRows === "1"){
+        console.log(`${Chalk.green(`New Employee(id:'${empAddResult.insertId}') Successfully Added!`)}`);
+      }
+    }
+    catch (err) {
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+    }
+
+    //---------
+
+    // const departments = await departmentORM.getAll();
+    // const findDepartment = await departments.find(e => e.name === roleAnswers.dept);
+    // try {
+    //   const addRoleResult = await roleORM.add(roleAnswers.title, roleAnswers.salary, findDepartment.id);
+    //   const addedRole = await roleORM.getAll({
+    //     where: `department_id='${findDepartment.id}'`,
+    //     orderBy: `id desc`,
+    //     limit: '1'
+    //   });
+    //   console.table(addedRole);
+    // }
+    // catch (err) {
+    //   console.log(`${Chalk.yellow(err.sqlMessage)}`);
+    // }
   }
 }
 

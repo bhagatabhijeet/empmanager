@@ -78,7 +78,6 @@ async function init() {
                 ]
             }
         ]);
-        // console.log(empoperation);
 
         // Two blank lines on the console.Just for better looking.
         console.log(); console.log();
@@ -96,16 +95,18 @@ async function init() {
                 await Employee.viewAllEmployeesByManager();
                 break;
             case 'ADD EMPLOYEE':
-                console.log("Not Implemented");
+                if (await Employee.addNewEmployee() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'REMOVE EMPLOYEE':
-                if(await Employee.removeEmployee() === 'MAIN_MENU') {
+                if (await Employee.removeEmployee() === 'MAIN_MENU') {
                     continue;
                 }
                 break;
             case 'UPDATE EMPLOYEE':
                 console.log("Not Implemented");
-                break;            
+                break;
             case 'VIEW ALL ROLES':
                 await Role.viewAllRoles();
                 break;

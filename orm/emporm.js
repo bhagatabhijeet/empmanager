@@ -1,8 +1,15 @@
 const db = require('./database');
 
 class EmployeeORM {
-    async add() {
-
+    async add(first_name,last_name,role_id,manager_id) {
+        try {
+            const addResult = await db.executeQuery(`INSERT INTO employee (first_name,last_name,role_id,manager_id)
+            VALUES ('${first_name}','${last_name}',${role_id},${manager_id});`);
+            return addResult;
+        }
+        catch (err) {
+            return err;
+        }
     }
 
     async update() {
