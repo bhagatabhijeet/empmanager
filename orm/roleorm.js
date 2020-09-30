@@ -66,13 +66,13 @@ class RoleORM {
 
     async getAll(params = { where: '', orderBy: '', limit: '' }) {
         let sqlQuery = 'SELECT * FROM role'
-        if ((params.where !== '')) {
+        if (params.where ) {
             sqlQuery += ` WHERE ${params.where}`
         }
-        if (params.orderBy !== '') {
+        if (params.orderBy) {
             sqlQuery += ` ORDER BY ${params.orderBy}`
         }
-        if (params.limit !== '') {
+        if (params.limit) {
             sqlQuery += ` LIMIT ${params.limit}`
         }
         sqlQuery += ';';
