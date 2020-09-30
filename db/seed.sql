@@ -29,7 +29,7 @@ VALUES
     ('HR Manager',120000,1), /* 2 */
     ('Recruiter',90000,1), /* 3 */
     ('Software Engineer',120000,2), /* 4 */
-    ('Senoir Software Engineer',140000,2), /* 5 */
+    ('Senior Software Engineer',140000,2), /* 5 */
     ('Junior Scientist',130000,3), /* 6 */
     ('Senior Scientist',150000,3), /* 7 */
     ('Marketing Executive',100000,4), /* 8 */
