@@ -93,16 +93,18 @@ let Employee = {
 
     // First Query Employee Table to check if record count is more than one
     try {
-      let employees = await db.executeQuery(`
-        SELECT id,first_name,last_name FROM employee        
-        WHERE first_name LIKE '%${empAnswer.empfirst}%' and last_name like '%${empAnswer.emplast}%';`);
+      let employees = await empORM.getAllNoJoin({
+        where:`first_name LIKE '%${empAnswer.empfirst}%' and last_name like '%${empAnswer.emplast}%'`
+      });
 
-      if (employees.length > 0) {
+      if (employees.length > 1) {
         console.log(`${Chalk.green(`More than 1 record found. Select among the following to remove`)}`);
         const choices = [];
         employees.forEach(e => {
           choices.push(`${e.id}:${e.first_name} ${e.last_name}`);
         });
+        choices.push(new inquirer.Separator());
+        choices.push('Back To Main Menu');
         let empDelSelect = await inquirer.prompt([{
           message: "Select Employee To Remove >>",
           name: 'delemp',
@@ -110,10 +112,14 @@ let Employee = {
           pageSize: 15,
           choices: choices
         }]);
+        if (empDelSelect.delemp.toUpperCase() === "BACK TO MAIN MENU") {
+          return "MAIN_MENU";
+        }
+
         let empIdToDelete = empDelSelect.delemp.split(':')[0];
-        console.log(empIdToDelete);
+        
         try {
-          await db.executeQuery(`DELETE FROM employee WHERE id=${empIdToDelete}`);
+          await empORM.deleteRows(`id=${empIdToDelete}`)
           console.log(`${Chalk.green(`Employee with Empoyee Id : ${empIdToDelete} Removed!`)}`);
         }
         catch (err) {
@@ -123,7 +129,7 @@ let Employee = {
       }
       else {
         try {
-          await db.executeQuery(`DELETE FROM employee WHERE first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%'`);
+          await empORM.deleteRows(`first_name LIKE '%${empAnswer.empfirst}%' and last_name LIKE '%${empAnswer.emplast}%'`);
           console.log(`${Chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}`);
         }
         catch (err) {

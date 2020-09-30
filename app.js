@@ -58,8 +58,7 @@ async function init() {
                     'View All Employees By Manager',
                     'Add Employee',
                     'Remove Employee',
-                    'Update Employee Role',
-                    'Update Employee Manager',
+                    'Update Employee',
                     new inquirer.Separator('---------- ROLE OPERATIONS --------------'),
                     'View All Roles',
                     'View All Roles For A Department',
@@ -100,14 +99,13 @@ async function init() {
                 console.log("Not Implemented");
                 break;
             case 'REMOVE EMPLOYEE':
-                await Employee.removeEmployee();
+                if(await Employee.removeEmployee() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
-            case 'UPDATE EMPLOYEE ROLE':
+            case 'UPDATE EMPLOYEE':
                 console.log("Not Implemented");
-                break;
-            case 'UPDATE EMPLOYEE MANAGER':
-                console.log("Not Implemented");
-                break;
+                break;            
             case 'VIEW ALL ROLES':
                 await Role.viewAllRoles();
                 break;

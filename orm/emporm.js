@@ -9,12 +9,40 @@ class EmployeeORM {
 
     }
 
-    async deleteRows() {
-
+    async deleteRows(whereCondition) {
+        if (typeof whereCondition === 'undefined') {
+            const e = new Error();
+            e.sqlMessage = 'Invalid SQL:WHERE condition not specified';
+            throw e;
+        }
+        try {
+            const deleteResult = await db.executeQuery(`DELETE FROM employee WHERE ${whereCondition};`);
+            return deleteResult;
+        }
+        catch (err) {
+            return err;
+        }
     }
 
-    async getAllAsList() {
-
+    async getAllNoJoin(params = { where: '', orderBy: '', limit: '' }) {
+        let sqlQuery = `SELECT * FROM employee`;            
+        if (params.where) {
+            sqlQuery += ` WHERE ${params.where}`
+        }
+        if (params.orderBy) {
+            sqlQuery += ` ORDER BY ${params.orderBy}`
+        }
+        if (params.limit) {
+            sqlQuery += ` LIMIT ${params.limit}`
+        }
+        sqlQuery += ';';
+        try {
+            const employees = await db.executeQuery(sqlQuery);
+            return employees;
+        }
+        catch (err) {
+            return err;
+        }
     }
     async getAll(params = { where: '', orderBy: '', limit: '' }) {
         let sqlQuery = `SELECT 
@@ -44,8 +72,8 @@ class EmployeeORM {
         }
         sqlQuery += ';';
         try {
-            const roles = await db.executeQuery(sqlQuery);
-            return roles;
+            const employees = await db.executeQuery(sqlQuery);
+            return employees;
         }
         catch (err) {
             return err;
