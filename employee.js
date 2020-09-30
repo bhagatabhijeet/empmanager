@@ -227,25 +227,28 @@ let Employee = {
     }
     catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
+    }   
+  },
+
+  async viewTotalUtilizedBudgetByDepartment(){
+    try {
+      const result = await empORM.get({
+        sql:`SELECT d.id,d.name, sum(r.salary) as 'total_utilized_budget' FROM employee e
+        INNER JOIN role r
+        on e.role_id = r.id
+        INNER JOIN department d
+        on r.department_id=d.id
+        group by d.id`,
+        orderBy:'id asc'
+      });
+      console.table(result);
+    }
+    catch (err) {
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
 
-    //---------
-
-    // const departments = await departmentORM.getAll();
-    // const findDepartment = await departments.find(e => e.name === roleAnswers.dept);
-    // try {
-    //   const addRoleResult = await roleORM.add(roleAnswers.title, roleAnswers.salary, findDepartment.id);
-    //   const addedRole = await roleORM.getAll({
-    //     where: `department_id='${findDepartment.id}'`,
-    //     orderBy: `id desc`,
-    //     limit: '1'
-    //   });
-    //   console.table(addedRole);
-    // }
-    // catch (err) {
-    //   console.log(`${Chalk.yellow(err.sqlMessage)}`);
-    // }
   }
+
 }
 
 

@@ -71,6 +71,7 @@ async function init() {
                     'Update Department',
                     'Delete Department',
                     'View Total Utilized Budget Of Department',
+                    'View Total Utilized Budget By Department',
                     new inquirer.Separator('---------- DB ADMIN OPERATIONS ----------'),
                     'DB Seed Data',
                     new inquirer.Separator(),
@@ -148,6 +149,9 @@ async function init() {
                 break;
             case 'VIEW TOTAL UTILIZED BUDGET OF DEPARTMENT':
                 console.log("Not Implemented");
+                break;
+            case 'VIEW TOTAL UTILIZED BUDGET BY DEPARTMENT':
+                await Employee.viewTotalUtilizedBudgetByDepartment();
                 break;
             case 'DB SEED DATA':
                 await Admin.seedData();
