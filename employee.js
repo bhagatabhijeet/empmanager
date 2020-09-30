@@ -44,11 +44,12 @@ let Employee = {
     }];
     let managerAnswer = await inquirer.prompt(managerQuestion);
     try {
-      let employees = await db.executeQuery(`
-        SELECT e1.*,e2.first_name as 'manager' FROM employee e1
-        INNER JOIN employee e2
-        ON e1.manager_id = e2.id
-        WHERE e2.first_name LIKE '%${managerAnswer.manager}%';`);
+      let employees = await empORM.get({
+        sql:`SELECT e1.*,e2.first_name as 'manager' FROM employee e1
+            INNER JOIN employee e2
+            ON e1.manager_id = e2.id`,
+        where:`e2.first_name LIKE '%${managerAnswer.manager}%'`    
+      });
 
       if (employees.length > 0) {
         console.table(employees);
@@ -58,7 +59,7 @@ let Employee = {
       }
     }
     catch (err) {
-      console.log(err.sqlMessage);
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
   },
   async removeEmployee() {
