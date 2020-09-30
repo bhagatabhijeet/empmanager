@@ -1,10 +1,10 @@
 const CFonts = require('cfonts');
 const chalk = require("chalk");
 const inquirer = require('inquirer')
-const db = require('./database');
 const Employee = require('./employee');
 const Role = require('./role');
 const Department = require('./department');
+const Admin = require('./admin');
 
 
 // ***********************   WELCOME SCREEN ******************************************************************
@@ -42,7 +42,7 @@ process.on('beforeExit', (c) => {
 async function init() {
     let continueAsking = true;
     var ui = new inquirer.ui.BottomBar();
-    
+
     while (continueAsking) {
         ui.updateBottomBar(`${chalk.bgMagenta('[Enter Number To Select Operation Or Select Using Arrow Keys]')}\n`);
         let empoperation = await inquirer.prompt([
@@ -50,8 +50,9 @@ async function init() {
                 message: 'What would you like to do? >>',
                 name: 'operation',
                 type: "rawlist",
-                pageSize:12,
+                pageSize: 16,
                 choices: [
+                    new inquirer.Separator('---------- EMPLOYEE OPERATIONS ----------'),
                     'View All Employees',
                     'View All Employees By Department',
                     'View All Employees By Manager',
@@ -59,26 +60,29 @@ async function init() {
                     'Remove Employee',
                     'Update Employee Role',
                     'Update Employee Manager',
+                    new inquirer.Separator('---------- ROLE OPERATIONS --------------'),
                     'View All Roles',
                     'View All Roles For A Department',
                     'Add New Role',
                     'Update Role',
                     'Delete Role',
+                    new inquirer.Separator('---------- DEPARTMENT OPERATIONS --------'),
                     'View All Departments',
                     'Add New Department',
                     'Update Department',
                     'Delete Department',
                     'View Total Utilized Budget Of Department',
+                    new inquirer.Separator('---------- DB ADMIN OPERATIONS ----------'),
                     'DB Seed Data',
                     new inquirer.Separator(),
                     'Exit'
                 ]
-            }            
+            }
         ]);
         // console.log(empoperation);
 
         // Two blank lines on the console.Just for better looking.
-        console.log();console.log();
+        console.log(); console.log();
 
         switch (empoperation.operation.toUpperCase()) {
             case 'VIEW ALL EMPLOYEES':
@@ -106,16 +110,24 @@ async function init() {
                 await Role.viewAllRoles();
                 break;
             case 'VIEW ALL ROLES FOR A DEPARTMENT':
-                await Role.viewAllRolesForDepartment();
+                if (await Role.viewAllRolesForDepartment() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'ADD NEW ROLE':
-                await Role.addNewRole();
+                if (await Role.addNewRole() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'UPDATE ROLE':
-                console.log("Not Implemented");
+                if (await Role.updateRole() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'DELETE ROLE':
-                await Role.deleteRole();
+                if (await Role.deleteRole() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'VIEW ALL DEPARTMENTS':
                 await Department.viewAllDepartments();
@@ -124,12 +136,12 @@ async function init() {
                 await Department.addNewDepartment();
                 break;
             case 'UPDATE DEPARTMENT':
-                if(await Department.updateDepartment() === 'MAIN_MENU'){
+                if (await Department.updateDepartment() === 'MAIN_MENU') {
                     continue;
                 }
                 break;
             case 'DELETE DEPARTMENT':
-                if(await Department.deleteDepartment()  === 'MAIN_MENU'){
+                if (await Department.deleteDepartment() === 'MAIN_MENU') {
                     continue;
                 }
                 break;
@@ -137,10 +149,10 @@ async function init() {
                 console.log("Not Implemented");
                 break;
             case 'DB SEED DATA':
-                await db.seedData();
+                await Admin.seedData();
                 break;
             case 'EXIT':
-                process.exit(0);         
+                process.exit(0);
         }
 
         let continueQuestion = await inquirer.prompt([
