@@ -50,7 +50,7 @@ LOCK TABLES `employee` WRITE;
 
 INSERT INTO `employee` (first_name,last_name,role_id,manager_id)
 VALUES 
-    ('Joeseph','Cutler',2,NULL),
+    ('Joseph','Cutler',2,NULL),
     ('Edward','Hawk',1,1),
     ('Saina','Chopra',3,1),
     ('Sean', 'Gomez',5,NULL),
