@@ -210,38 +210,91 @@ let Employee = {
     const EmployeesInDepartment = await empORM.getAll({
       where: `d.name ='${departmentAnswer.dept}'`
     });
-    
-    
+
+
     EmployeesInDepartment.forEach(emp => {
       managerQuestion[0].choices.push(emp.id + ":" + emp.first_name + " " + emp.last_name);
     });
-    
+
     const managerAnswer = await inquirer.prompt(managerQuestion);
 
     try {
       // console.log(role);
-      const empAddResult = empORM.add(empAnswers.firstname,empAnswers.lastname,role[0].id,managerAnswer.manager.split(':')[0]);
-      if(empAddResult.affectedRows === "1"){
+      const empAddResult = empORM.add(empAnswers.firstname, empAnswers.lastname, role[0].id, managerAnswer.manager.split(':')[0]);
+      if (empAddResult.affectedRows === "1") {
         console.log(`${Chalk.green(`New Employee(id:'${empAddResult.insertId}') Successfully Added!`)}`);
       }
     }
     catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
-    }   
+    }
   },
 
-  async viewTotalUtilizedBudgetByDepartment(){
+  async viewTotalUtilizedBudgetByDepartment() {
     try {
       const result = await empORM.get({
-        sql:`SELECT d.id,d.name, sum(r.salary) as 'total_utilized_budget' FROM employee e
+        sql: `SELECT d.id,d.name, sum(r.salary) as 'total_utilized_budget' FROM employee e
         INNER JOIN role r
         on e.role_id = r.id
         INNER JOIN department d
         on r.department_id=d.id
         group by d.id`,
-        orderBy:'id asc'
+        orderBy: 'id asc'
       });
       console.table(result);
+    }
+    catch (err) {
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+    }
+
+  },
+  async viewTotalUtilizedBudgetOfDepartment() {
+    let departmentQuestion = [
+      {
+        message: 'Select Department >>',
+        name: 'dept',
+        type: "rawlist",
+        pageSize: 12,
+        choices: []
+      }];
+    departmentQuestion[0].choices = await departmentORM.getAllAsList();
+    departmentQuestion[0].choices.push(new inquirer.Separator());
+    departmentQuestion[0].choices.push('Back To Main Menu');
+
+    const departmentAnswer = await inquirer.prompt(departmentQuestion);
+    if (departmentAnswer.dept.toUpperCase() === "BACK TO MAIN MENU") {
+      return "MAIN_MENU";
+    }
+
+    const department = await departmentORM.getAll({
+      where: `name='${departmentAnswer.dept}'`
+    });
+    try {
+      const result = await empORM.get({
+        sql: `SELECT d.id,d.name, sum(r.salary) as 'total_utilized_budget' FROM employee e
+        INNER JOIN role r
+        on e.role_id = r.id
+        INNER JOIN department d
+        on r.department_id=d.id
+        where d.id=${department[0].id}
+        group by d.id`,
+        orderBy: 'id asc'
+      });
+      if (result.length > 0) {
+        console.table(result);
+      }
+      else {
+        console.log("dept id : " + department[0].id);
+        console.log("dept name : " + departmentAnswer.dept);
+        console.log();
+        let created_result = [{
+          id: department[0].id,
+          name: departmentAnswer.dept,
+          total_utilized_budget: 0
+        }];
+        console.table(created_result);
+      }
+
     }
     catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);

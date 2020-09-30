@@ -105,8 +105,8 @@ class EmployeeORM {
         }
         sqlQuery += ';';
         try {
-            const roles = await db.executeQuery(sqlQuery);
-            return roles;
+            const employees = await db.executeQuery(sqlQuery);
+            return employees;
         }
         catch (err) {
             return err;

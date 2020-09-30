@@ -148,7 +148,9 @@ async function init() {
                 }
                 break;
             case 'VIEW TOTAL UTILIZED BUDGET OF DEPARTMENT':
-                console.log("Not Implemented");
+                if(await Employee.viewTotalUtilizedBudgetOfDepartment()  === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'VIEW TOTAL UTILIZED BUDGET BY DEPARTMENT':
                 await Employee.viewTotalUtilizedBudgetByDepartment();
