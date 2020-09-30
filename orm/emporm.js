@@ -1,7 +1,7 @@
 const db = require('./database');
 
 class EmployeeORM {
-    async add(first_name,last_name,role_id,manager_id) {
+    async add(first_name, last_name, role_id, manager_id) {
         try {
             const addResult = await db.executeQuery(`INSERT INTO employee (first_name,last_name,role_id,manager_id)
             VALUES ('${first_name}','${last_name}',${role_id},${manager_id});`);
@@ -12,7 +12,25 @@ class EmployeeORM {
         }
     }
 
-    async update() {
+    async update(params = { set: '', where: '' }) {
+        if (params.set === '') {
+            const e = new Error();
+            e.sqlMessage = 'Invalid SQL:SET condition not specified';
+            throw e;
+        }
+        if (params.where === '') {
+            const e = new Error();
+            e.sqlMessage = 'Invalid SQL:WHERE condition not specified';
+            throw e;
+        }
+        try {
+            const updateResult = await db.executeQuery(`UPDATE employee SET ${params.set} 
+            WHERE ${params.where};`);
+            return updateResult;
+        }
+        catch (err) {
+            console.log(err);
+        }
 
     }
 
@@ -32,7 +50,7 @@ class EmployeeORM {
     }
 
     async getAllNoJoin(params = { where: '', orderBy: '', limit: '' }) {
-        let sqlQuery = `SELECT * FROM employee`;            
+        let sqlQuery = `SELECT * FROM employee`;
         if (params.where) {
             sqlQuery += ` WHERE ${params.where}`
         }

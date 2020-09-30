@@ -300,10 +300,121 @@ let Employee = {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
 
+  },
+  async updateEmployee() {
+    // Get the Employee Id from user to Update
+    let empInitialQuestion = [
+      {
+        message: 'Enter Employee Id To Update : ',
+        name: 'empid',
+        type: "input"
+      }
+    ];
+    const empInitialAnswer = await inquirer.prompt(empInitialQuestion);
+    // Show the employee details to the user and get confirmation if he really wants to update this employee
+    const showEmployee = await empORM.getAllNoJoin({
+      where: `id=${empInitialAnswer.empid}`
+    });
+    if (showEmployee.length > 0) {
+      console.log(`${Chalk.yellow("You are about to update following employee")}`);
+      console.log();
+      console.table(showEmployee);
+      console.log();
+    }
+    else {
+      console.log(`${Chalk.yellow("No Records Found!")}`);
+      console.log();
+      return;
+    }
+    const empUpdateConfirm = await inquirer.prompt([
+      {
+        message: 'Are you sure you want to proceed : ',
+        name: 'proceed',
+        type: "confirm"
+      }
+    ]);
+    if (!empUpdateConfirm.proceed) {
+      return;
+    }
+
+    const empUpdateQuestions = [
+      {
+        message: 'Firstname : ',
+        name: 'firstname',
+        type: "input",
+        default: `${showEmployee[0].first_name}`
+      },
+      {
+        message: 'Lastname : ',
+        name: 'lastname',
+        type: "input",
+        default: `${showEmployee[0].last_name}`
+      },
+      {
+        message: 'Select Role >>',
+        name: 'role',
+        type: "rawlist",
+        choices: []
+      }
+
+    ];
+    empUpdateQuestions[2].choices = await roleORM.getAllAsList();
+    empUpdateQuestions[2].choices.push(new inquirer.Separator());
+    empUpdateQuestions[2].choices.push('Back To Main Menu');
+    console.log();
+    console.log(`${Chalk.yellow("Leave empty and press enter if you want to use existing name.")}`);
+    console.log();
+    const empUpdateAnswer = await inquirer.prompt(empUpdateQuestions);
+    if (empUpdateAnswer.role.toUpperCase() === "BACK TO MAIN MENU") {
+      return "MAIN_MENU";
+    }
+    const role = await roleORM.getAll({
+      where: `title='${empUpdateAnswer.role}'`
+    });
+
+    const empUpdateManagerQuestion = [
+      {
+        message: 'Select Manager >>',
+        name: 'manager',
+        type: "rawlist",
+        choices: []
+      }];
+
+    const EmployeesInDepartment = await empORM.getAll({
+      where: `d.id =${role[0].department_id} and e.id <> ${showEmployee[0].id}`
+    });
+
+
+    EmployeesInDepartment.forEach(emp => {
+      empUpdateManagerQuestion[0].choices.push(emp.id + ":" + emp.first_name + " " + emp.last_name);
+    });
+
+    empUpdateManagerQuestion[0].choices.push(new inquirer.Separator());
+    empUpdateManagerQuestion[0].choices.push('Back To Main Menu');
+
+    const empUpdateManagerAnswer = await inquirer.prompt(empUpdateManagerQuestion);
+    if (empUpdateManagerAnswer.manager.toUpperCase() === "BACK TO MAIN MENU") {
+      return "MAIN_MENU";   
+    }
+
+    try{
+      const empUpdateResult = await empORM.update({
+        set:`first_name='${empUpdateAnswer.firstname}',last_name='${empUpdateAnswer.lastname}',
+        role_id=${role[0].id},manager_id=${empUpdateManagerAnswer.manager.split(':')[0]}`,
+        where:`id=${showEmployee[0].id}`
+      });
+            
+      if (empUpdateResult.affectedRows === 1) {        
+        console.log(`${Chalk.green(`Employee(id:'${showEmployee[0].id}') Successfully Updated!`)}`);
+        console.log();
+      }
+    }
+    catch(err){
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+    }
+
   }
 
 }
-
-
 
 module.exports = Employee;

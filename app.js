@@ -106,7 +106,9 @@ async function init() {
                 }
                 break;
             case 'UPDATE EMPLOYEE':
-                console.log("Not Implemented");
+                if (await Employee.updateEmployee() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'VIEW ALL ROLES':
                 await Role.viewAllRoles();
