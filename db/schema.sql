@@ -12,7 +12,7 @@ CREATE TABLE `department` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE;
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE
 ); 
 
 -- Table structure for table `role`
