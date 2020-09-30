@@ -1,5 +1,5 @@
 const db = require('./orm/database');
-const departmentOrm = require('./orm/deptorm');
+const { add, getAll, getAllAsList, update,deleteRows} = require('./orm/deptorm');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 const Chalk = require('chalk');
@@ -16,10 +16,10 @@ let Department = {
         let departmentAnswer = await inquirer.prompt(departmentQuestion);
 
         try {
-            const addResult = await departmentOrm.add(`${departmentAnswer.dept}`);
+            const addResult = await add(`${departmentAnswer.dept}`);
 
             console.log(`${Chalk.green('New Department Added!')}`);
-            const addedDepartment = await departmentOrm.getAll({
+            const addedDepartment = await getAll({
                 where: `name='${departmentAnswer.dept}'`,
                 orderBy: `id desc`,
                 limit: '1'
@@ -35,7 +35,7 @@ let Department = {
     // View All Departments
     async viewAllDepartments() {
         try {
-            const departments = await departmentOrm.getAll();
+            const departments = await getAll();
             console.table(departments);
         }
         catch (err) {
@@ -55,7 +55,7 @@ let Department = {
                 choices: []
 
             }];
-            departmentQuestion[0].choices = await departmentOrm.getAllAsList();
+            departmentQuestion[0].choices = await getAllAsList();
             departmentQuestion[0].choices.push(new inquirer.Separator());
             departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
@@ -71,7 +71,7 @@ let Department = {
             let departmentUpdateAnswer = await inquirer.prompt(departmentUpdateQuestion);
 
             try {
-                const updateresult = await departmentOrm.update(
+                const updateresult = await update(
                     {
                         set: `name='${departmentUpdateAnswer.updatedept}'`,
                         where: `name='${departmentAnswer.dept}'`
@@ -97,7 +97,7 @@ let Department = {
                 pageSize: 12,
                 choices: []
             }];
-            departmentQuestion[0].choices = await departmentOrm.getAllAsList();
+            departmentQuestion[0].choices = await getAllAsList();
             departmentQuestion[0].choices.push(new inquirer.Separator());
             departmentQuestion[0].choices.push('Back To Main Menu');
             const departmentAnswer = await inquirer.prompt(departmentQuestion);
@@ -105,7 +105,7 @@ let Department = {
                 return "MAIN_MENU";
             }
             try {
-                const deleteResult = await departmentOrm.delete(`name='${departmentAnswer.dept}'`);
+                const deleteResult = await deleteRows(`name='${departmentAnswer.dept}'`);
                 console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is deleted!`)}`);
             }
             catch (err) {

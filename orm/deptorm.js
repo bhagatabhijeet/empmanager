@@ -36,7 +36,7 @@ let DepartmentORM = {
     },
 
     // Delete from department table that meets the whereCondition
-    async delete(whereCondition) {
+    async deleteRows(whereCondition) {
         if (typeof whereCondition === 'undefined') {
             const e = new Error();
             e.sqlMessage = 'Invalid SQL:WHERE condition not specified';
