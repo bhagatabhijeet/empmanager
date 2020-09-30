@@ -54,7 +54,7 @@ async function init() {
                 choices: [
                     new inquirer.Separator('---------- EMPLOYEE OPERATIONS ----------'),
                     'View All Employees',
-                    'View All Employees By Department',
+                    'View All Employees In A Department',
                     'View All Employees By Manager',
                     'Add Employee',
                     'Remove Employee',
@@ -88,8 +88,10 @@ async function init() {
             case 'VIEW ALL EMPLOYEES':
                 await Employee.viewAllEmployees();
                 break;
-            case 'VIEW ALL EMPLOYEES BY DEPARTMENT':
-                console.log("Not Implemented");
+            case 'VIEW ALL EMPLOYEES IN A DEPARTMENT':
+                if (await Employee.viewAllEmployeesInDepartment() === 'MAIN_MENU') {
+                    continue;
+                }
                 break;
             case 'VIEW ALL EMPLOYEES BY MANAGER':
                 await Employee.viewAllEmployeesByManager();
