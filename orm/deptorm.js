@@ -1,6 +1,6 @@
 const db = require('./database');
 
-let DepartmentORM = {
+class DepartmentORM {
     //Add to department table
     async add(name) {
         try {
@@ -11,7 +11,7 @@ let DepartmentORM = {
         catch (err) {
             return err;
         }
-    },
+    }
 
     // Update department table
     async update(params = { set: '', where: '' }) {
@@ -33,7 +33,7 @@ let DepartmentORM = {
         catch (err) {
             console.log(err);
         }
-    },
+    }
 
     // Delete from department table that meets the whereCondition
     async deleteRows(whereCondition) {
@@ -49,7 +49,7 @@ let DepartmentORM = {
         catch (err) {
             return err;
         }
-    },
+    }
 
     // Get all records but as an Array
     async getAllAsList(params = { where: '', orderBy: '', limit: '' }) {
@@ -64,7 +64,7 @@ let DepartmentORM = {
         catch (err) {
             return err;
         }
-    },
+    }
     
     // Get all records as recordset
     async getAll(params = { where: '', orderBy: '', limit: '' }) {
@@ -89,5 +89,5 @@ let DepartmentORM = {
         }
     }
 }
-
-module.exports = DepartmentORM;
+const departmentORM = new DepartmentORM();
+module.exports = departmentORM;
