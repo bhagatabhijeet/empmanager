@@ -40,13 +40,13 @@ class Database{
 
     async seedData(){
         try{
-        await this.executeQueryUsingFile(path.join(__dirname,"/db/schema.sql"));
+        await this.executeQueryUsingFile(path.join(__dirname,"../db/schema.sql"));
         }
         catch(err){
             console.log(err);
         }
         try{
-        await this.executeQueryUsingFile(path.join(__dirname,"/db/seed.sql"));
+        await this.executeQueryUsingFile(path.join(__dirname,"../db/seed.sql"));
         }
         catch(err){
             console.log(err);
