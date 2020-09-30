@@ -1,4 +1,4 @@
-const db = require('./database');
+const empORM = require('./orm/emporm');
 const inquirer = require('inquirer');
 const Chalk = require('chalk');
 const cTable = require('console.table');
@@ -8,7 +8,6 @@ let Employee = {
     console.log('Adding employee...');
   },
   async viewAllEmployees() {
-
     let sqlQuery = `
           SELECT 
               e.id,
@@ -28,11 +27,13 @@ let Employee = {
               department d ON r.department_id = d.id;`
 
     try {
-      const result = await db.executeQuery(sqlQuery);
+      const result = await empORM.get({
+        sql: sqlQuery
+      });
       console.table(result);
     }
-    catch (e) {
-      console.log(e);
+    catch (err) {
+      console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
   },
   async viewAllEmployeesByManager() {
@@ -90,7 +91,7 @@ let Employee = {
           message: "Select Employee To Remove >>",
           name: 'delemp',
           type: 'rawlist',
-          pageSize: 12,
+          pageSize: 15,
           choices: choices
         }]);
         let empIdToDelete = empDelSelect.delemp.split(':')[0];
