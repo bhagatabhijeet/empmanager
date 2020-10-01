@@ -16,4 +16,29 @@ async function blankIdValidator(input) {
   return true;
 }
 
-module.exports = { blankNameValidator, blankIdValidator };
+async function blankTitleValidator(input) {
+  if (input.length === 0) {
+    console.log(`${chalk.yellow('  Invalid Title')}${chalk.blue(' Title cannot be empty.')}`);
+    return false;
+  }
+  return true;
+}
+
+async function salaryValidator(input) {
+  if (input.length === 0) {
+    console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary cannot be empty.')}`);
+    return false;
+  }
+  if (Number.isNaN(input)) {
+    console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary should be numeric.')}`);
+    return false;
+  }
+  return true;
+}
+
+module.exports = {
+  blankNameValidator,
+  blankIdValidator,
+  blankTitleValidator,
+  salaryValidator
+};
