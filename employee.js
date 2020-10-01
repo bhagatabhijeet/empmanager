@@ -311,8 +311,11 @@ const Employee = {
         group by d.id`,
         orderBy: 'id asc'
       });
+      console.log();
       console.table(result);
+      console.log();
     } catch (err) {
+      console.log();
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
   },
