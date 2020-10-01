@@ -12,5 +12,12 @@
         "ecmaVersion": 12
     },
     "rules": {
+        "linebreak-style":["error", "windows"],
+        "no-console":"off",
+        "no-await-in-loop":"off",
+        "comma-dangle":"off",
+        "no-continue":"off" ,
+        "class-methods-use-this":"off",
+        "no-underscore-dangle":"off"       
     }
 }
