@@ -29,7 +29,8 @@ async function salaryValidator(input) {
     console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary cannot be empty.')}`);
     return false;
   }
-  if (Number.isNaN(input)) {
+  const pattern = new RegExp(/^\d+(\.\d+)?$/, 'g');
+  if (!pattern.test(input)) {
     console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary should be numeric.')}`);
     return false;
   }
