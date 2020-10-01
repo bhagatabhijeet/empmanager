@@ -1,10 +1,14 @@
 const mysql = require('mysql');
 const fs = require('fs');
 const path = require('path');
-// const util = require('util');
 require('dotenv').config();
 
-// const readFileAsync = util.promisify(fs.readFile);
+
+/**
+ * @description Database class does all the work of querying the MySQL database and sending the results
+ * The database class is consumed by ORMs
+ * The class is not to be consumed by any other code.
+ */
 
 class Database{
     _connection=null;
@@ -19,18 +23,24 @@ class Database{
           });
     }
 
+    /**
+     * 
+     * @param {string} sql 
+     * @description executeQuery processes the sql passed by user.
+     * Note:- The use of promise
+     */
     executeQuery(sql){
         const promise = new Promise((resolve, reject) => {
             if(!this._connection){
                 this.createConnection();
             }
-            // this._connection.connect();
+            
             this._connection.query(sql, (err, result) => {
               if (err) {
                 reject(err);
               }
               else {
-                //   this._connection.end();
+            
                 resolve(result);
               }
             });
@@ -38,6 +48,11 @@ class Database{
           return promise;
     }
 
+    /**
+     * @description seedData is a Utility method to allow user to seed data to the database.
+     * Note: - The paths in this method are hardcoded so it will not work on other systems.
+     * The method is created just in case we need to create data for quick Demo.
+     */
     async seedData(){
         try{
         await this.executeQueryUsingFile(path.join(__dirname,"../db/schema.sql"));
@@ -51,23 +66,21 @@ class Database{
         catch(err){
             console.log(err);
         }
-        // const result={
-        //     employeeCount:0,
-        //     departmentCount:0,
-        //     roleCount:0
-        // };
+        
+        // Output the stats to the console once seeding data is complete
         let count = await this.executeQuery(`SELECT COUNT(*) AS 'Employee Count' FROM employee;`)
         console.table(count[0]);
         count = await this.executeQuery(`SELECT COUNT(*) AS 'Department Count' FROM department;`)
-        // result.departmentCount=count;
+        
         console.table(count[0]);
         count = await this.executeQuery(`SELECT COUNT(*) AS 'Roles Count' FROM role;`)
-        // result.roleCount=count;
+        
         console.table(count[0]);
-        // console.table(result);
+        
          
     }
 
+    // Just a wrapper on executeQuery method. This method allows convinience to use sql from a file
     async executeQueryUsingFile(filePath){
         let sql=fs.readFileSync(filePath).toString();
         return this.executeQuery(sql);
