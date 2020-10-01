@@ -1,6 +1,7 @@
 const db = require('./database');
 
 class RoleORM {
+    // Inserts record into role table
     async add(title, salary, department_id) {
         try {
             const addResult = await db.executeQuery(`INSERT INTO role (title,salary,department_id)
@@ -12,6 +13,7 @@ class RoleORM {
         }
     }
 
+    // Updates role table records
     async update(params = { set: '', where: '' }) {
         if (params.set === '') {
             const e = new Error();
@@ -34,6 +36,7 @@ class RoleORM {
 
     }
 
+    // Delete from role table
     async deleteRows(whereCondition) {
         if (typeof whereCondition === 'undefined') {
             const e = new Error();
@@ -50,6 +53,7 @@ class RoleORM {
 
     }
 
+    // Get all role titles as an array
     async getAllAsList(params = { where: '', orderBy: '', limit: '' }) {
         const roleList = [];
         try {
@@ -64,6 +68,7 @@ class RoleORM {
         }
     }
 
+    // Get all roles as recordsets
     async getAll(params = { where: '', orderBy: '', limit: '' }) {
         let sqlQuery = 'SELECT * FROM role'
         if (params.where ) {
@@ -85,6 +90,7 @@ class RoleORM {
         }
     }
 
+    // Get allows user to use custom SQL query
     async get(params = { sql: '', where: '', orderBy: '', limit: '' }) {
         let sqlQuery = params.sql;
         if (!params.sql) {

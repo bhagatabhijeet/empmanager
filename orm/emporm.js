@@ -1,6 +1,8 @@
 const db = require('./database');
 
 class EmployeeORM {
+
+    //Inserts row in employee table
     async add(first_name, last_name, role_id, manager_id) {
         try {
             const addResult = await db.executeQuery(`INSERT INTO employee (first_name,last_name,role_id,manager_id)
@@ -12,6 +14,7 @@ class EmployeeORM {
         }
     }
 
+    // Update employee records
     async update(params = { set: '', where: '' }) {
         if (params.set === '') {
             const e = new Error();
@@ -34,6 +37,7 @@ class EmployeeORM {
 
     }
 
+    // Delete from employee table
     async deleteRows(whereCondition) {
         if (typeof whereCondition === 'undefined') {
             const e = new Error();
@@ -49,6 +53,7 @@ class EmployeeORM {
         }
     }
 
+    // Get all employee records. The method returns only employee table records and performs NO JOINs
     async getAllNoJoin(params = { where: '', orderBy: '', limit: '' }) {
         let sqlQuery = `SELECT * FROM employee`;
         if (params.where) {
@@ -69,6 +74,7 @@ class EmployeeORM {
             return err;
         }
     }
+    // Ge all emplyee records. The SQL Query is pre-writtent to perform join on role and department tables
     async getAll(params = { where: '', orderBy: '', limit: '' }) {
         let sqlQuery = `SELECT 
             e.id,
@@ -105,6 +111,7 @@ class EmployeeORM {
         }
     }
 
+    // Get method to allow user to pass custom SQL
     async get(params = { sql: '', where: '', orderBy: '', limit: '' }) {
         let sqlQuery = params.sql;
         if (!params.sql) {
