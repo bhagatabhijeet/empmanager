@@ -5,6 +5,7 @@ const inquirer = require('inquirer');
 const empORM = require('./orm/emporm');
 const departmentORM = require('./orm/deptorm');
 const roleORM = require('./orm/roleorm');
+const validators = require('./validators');
 
 const Employee = {
   // View All Employees
@@ -106,12 +107,14 @@ const Employee = {
     const empQuestion = [{
       message: 'Enter Employee Firstname : ',
       name: 'empfirst',
-      type: 'input'
+      type: 'input',
+      validate: validators.blankNameValidator
     },
     {
       message: 'Enter Employee Lastname : ',
       name: 'emplast',
-      type: 'input'
+      type: 'input',
+      validate: validators.blankNameValidator
     }
     ];
     const empAnswer = await inquirer.prompt(empQuestion);
@@ -189,12 +192,14 @@ const Employee = {
       {
         message: 'Firstname : ',
         name: 'firstname',
-        type: 'input'
+        type: 'input',
+        validate: validators.blankNameValidator
       },
       {
         message: 'Lastname : ',
         name: 'lastname',
-        type: 'input'
+        type: 'input',
+        validate: validators.blankNameValidator
       }];
 
     // Ask the user to select department
@@ -375,7 +380,8 @@ const Employee = {
       {
         message: 'Enter Employee Id To Update : ',
         name: 'empid',
-        type: 'input'
+        type: 'input',
+        validate: validators.blankIdValidator
       }
     ];
     const empInitialAnswer = await inquirer.prompt(empInitialQuestion);
