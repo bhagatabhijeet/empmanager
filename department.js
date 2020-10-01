@@ -3,6 +3,7 @@ const Chalk = require('chalk');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 const departmentORM = require('./orm/deptorm');
+const validators = require('./validators')
 
 const Department = {
 
@@ -12,7 +13,8 @@ const Department = {
     const departmentQuestion = [{
       message: 'Enter Department Name : ',
       name: 'dept',
-      type: 'input'
+      type: 'input',
+      validate: validators.blankNameValidator
     }];
     const departmentAnswer = await inquirer.prompt(departmentQuestion);
 
@@ -28,9 +30,12 @@ const Department = {
         limit: '1'
       });
       // Show added department to the user
+      console.log();
       console.table(addedDepartment);
+      console.log();
     }
     catch (err) {
+      console.log();
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
   },
@@ -74,7 +79,8 @@ const Department = {
       const departmentUpdateQuestion = [{
         message: 'Enter Department Name : ',
         name: 'updatedept',
-        type: 'input'
+        type: 'input',
+        validate: validators.blankNameValidator
       }];
       const departmentUpdateAnswer = await inquirer.prompt(departmentUpdateQuestion);
 
@@ -86,9 +92,12 @@ const Department = {
             where: `name='${departmentAnswer.dept}'`
           }
         );
+        console.log();
         console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is Updated to '${departmentUpdateAnswer.updatedept}'!`)}`);
+        console.log();
         return '';
       } catch (err) {
+        console.log();
         console.log(`${Chalk.yellow(err.sqlMessage)}`);
         return '';
       }
@@ -123,9 +132,12 @@ const Department = {
         // Delete departmetn using departmentORM
         await departmentORM.deleteRows(`name='${departmentAnswer.dept}'`);
         // Show the confirmation to the user
+        console.log();
         console.log(`${Chalk.green(`Department : '${departmentAnswer.dept}' is deleted!`)}`);
+        console.log();
         return '';
       } catch (err) {
+        console.log();
         console.log(err.sqlMessage);
         return '';
       }
