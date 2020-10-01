@@ -25,6 +25,7 @@ const Employee = {
       name: 'manager',
       type: 'input'
     }];
+    console.log(`${Chalk.yellow('Leave Manager Name Blank To Select All Employees Having Manager')}`);
     const managerAnswer = await inquirer.prompt(managerQuestion);
     try {
       // Get all employees where Manager name like the one entered above
@@ -37,10 +38,14 @@ const Employee = {
 
       // If there are records found then show
       if (employees.length > 0) {
+        console.log(); // Blank link for better UX
         console.table(employees);
+        console.log(); // Blank link for better UX
       } else {
         // Convey to the user that there are no records
+        console.log(); // Blank link for better UX
         console.log(`${Chalk.green('No Records Found!!')}`);
+        console.log(); // Blank link for better UX
       }
     } catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
@@ -79,10 +84,14 @@ const Employee = {
 
       // If there are records? then show
       if (employees.length > 0) {
+        console.log(); // Blank link for better UX
         console.table(employees);
+        console.log(); // Blank link for better UX
       } else {
         // Else convey to the user that there are no records found
+        console.log();
         console.log(`${Chalk.green('No Records Found!!')}`);
+        console.log(); // Blank link for better UX
       }
       return '';
     } catch (err) {
@@ -117,7 +126,9 @@ const Employee = {
       // if more than one employee found matching the firstname and last name entered above
       if (employees.length > 1) {
         // Tell user that more than 1 employees has same first and last name
+        console.log();
         console.log(`${Chalk.green('More than 1 record found. Select among the following to remove')}`);
+        console.log();
         const choices = [];
         // put the found employees into a list and show user.
         // This is to ask user to select which employee he intends to delete
@@ -147,7 +158,9 @@ const Employee = {
         try {
           // finally now that we have id. Delete employee using empORM.deleteRows method
           await empORM.deleteRows(`id=${empIdToDelete}`);
+          console.log();
           console.log(`${Chalk.green(`Employee with Empoyee Id : ${empIdToDelete} Removed!`)}`);
+          console.log();
         } catch (err) {
           console.log(`${Chalk.yellow(err.sqlMessage)}`);
         }
@@ -249,18 +262,30 @@ const Employee = {
       where: `d.name ='${departmentAnswer.dept}'`
     });
 
-    EmployeesInDepartment.forEach((emp) => {
-      managerQuestion[0].choices.push(`${emp.id}:${emp.first_name} ${emp.last_name}`);
-    });
-
-    const managerAnswer = await inquirer.prompt(managerQuestion);
+    let managerAnswer;
+    if (EmployeesInDepartment.length < 1) {
+      console.log();
+      console.log(`${Chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
+      console.log();
+    } else {
+      EmployeesInDepartment.forEach((emp) => {
+        managerQuestion[0].choices.push(`${emp.id}:${emp.first_name} ${emp.last_name}`);
+      });
+      managerAnswer = await inquirer.prompt(managerQuestion);
+    }
 
     try {
       // Now that we have all the info
       // Add the employee using empORM
-      const empAddResult = empORM.add(empAnswers.firstname, empAnswers.lastname, role[0].id, managerAnswer.manager.split(':')[0]);
+      const managerId = typeof managerAnswer === 'undefined' ? null : managerAnswer.manager.split(':')[0];
+
+      const empAddResult = await empORM.add(empAnswers.firstname,
+        empAnswers.lastname, role[0].id, managerId);
+
       if (empAddResult.affectedRows === 1) {
+        console.log();
         console.log(`${Chalk.green(`New Employee(id:'${empAddResult.insertId}') Successfully Added!`)}`);
+        console.log();
       }
     } catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
@@ -436,28 +461,34 @@ const Employee = {
     // populate the manager selection question with the choices
     // Each choice is formatted as 'id: firstname lastname'
     // This avoids one unnecessary server trip
-    EmployeesInDepartment.forEach((emp) => {
-      empUpdateManagerQuestion[0].choices.push(`${emp.id}:${emp.first_name} ${emp.last_name}`);
-    });
-
-    empUpdateManagerQuestion[0].choices.push(new inquirer.Separator());
-    empUpdateManagerQuestion[0].choices.push('Back To Main Menu');
-
-    const empUpdateManagerAnswer = await inquirer.prompt(empUpdateManagerQuestion);
-    if (empUpdateManagerAnswer.manager.toUpperCase() === 'BACK TO MAIN MENU') {
-      // eslint-disable-next-line consistent-return
-      return 'MAIN_MENU';
+    let empUpdateManagerAnswer;
+    if (EmployeesInDepartment.length < 1) {
+      console.log();
+      console.log(`${Chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
+      console.log();
+    } else {
+      EmployeesInDepartment.forEach((emp) => {
+        empUpdateManagerQuestion[0].choices.push(`${emp.id}:${emp.first_name} ${emp.last_name}`);
+      });
+      empUpdateManagerQuestion[0].choices.push(new inquirer.Separator());
+      empUpdateManagerQuestion[0].choices.push('Back To Main Menu');
+      empUpdateManagerAnswer = await inquirer.prompt(empUpdateManagerQuestion);
+      if (empUpdateManagerAnswer.manager.toUpperCase() === 'BACK TO MAIN MENU') {
+        // eslint-disable-next-line consistent-return
+        return 'MAIN_MENU';
+      }
     }
-
+    const managerId = typeof empUpdateManagerAnswer === 'undefined' ? null : empUpdateManagerAnswer.manager.split(':')[0];
     try {
       // Now that we have all the data update employee using empORM
       const empUpdateResult = await empORM.update({
         set: `first_name='${empUpdateAnswer.firstname}',last_name='${empUpdateAnswer.lastname}',
-        role_id=${role[0].id},manager_id=${empUpdateManagerAnswer.manager.split(':')[0]}`,
+        role_id=${role[0].id},manager_id=${managerId}`,
         where: `id=${showEmployee[0].id}`
       });
 
       if (empUpdateResult.affectedRows === 1) {
+        console.log();
         console.log(`${Chalk.green(`Employee(id:'${showEmployee[0].id}') Successfully Updated!`)}`);
         console.log();
       }
