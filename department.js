@@ -3,6 +3,7 @@ const Chalk = require('chalk');
 const cTable = require('console.table');
 const inquirer = require('inquirer');
 const departmentORM = require('./orm/deptorm');
+const { printHelperMessage } = require('./utils');
 const validators = require('./validators')
 
 const Department = {
@@ -16,7 +17,12 @@ const Department = {
       type: 'input',
       validate: validators.blankNameValidator
     }];
+
+    await printHelperMessage();
     const departmentAnswer = await inquirer.prompt(departmentQuestion);
+    if (departmentAnswer.dept.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
 
     try {
       // Add department using departmentORM
@@ -33,11 +39,11 @@ const Department = {
       console.log();
       console.table(addedDepartment);
       console.log();
-    }
-    catch (err) {
+    } catch (err) {
       console.log();
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
+    return '';
   },
 
   // View All Departments
@@ -82,7 +88,13 @@ const Department = {
         type: 'input',
         validate: validators.blankNameValidator
       }];
+
+      await printHelperMessage();
       const departmentUpdateAnswer = await inquirer.prompt(departmentUpdateQuestion);
+
+      if (departmentUpdateAnswer.updatedept.toUpperCase() === '!Q') {
+        return 'MAIN_MENU';
+      }
 
       try {
         // Update the department using the new deparment name using the departmentORM
@@ -128,6 +140,18 @@ const Department = {
       if (departmentAnswer.dept.toUpperCase() === 'BACK TO MAIN MENU') {
         return 'MAIN_MENU';
       }
+      // Get a final confirmation
+      const deptDeleteFinal = await inquirer.prompt([
+        {
+          message: `You are about to delete a department '${departmentAnswer.dept}'. Are you sure you want to proceed : `,
+          name: 'proceed',
+          type: 'confirm'
+        }
+      ]);
+      if (!deptDeleteFinal.proceed) {
+        return 'MAIN_MENU';
+      }
+
       try {
         // Delete departmetn using departmentORM
         await departmentORM.deleteRows(`name='${departmentAnswer.dept}'`);

@@ -1,4 +1,4 @@
-const Chalk = require('chalk');
+const chalk = require('chalk');
 // eslint-disable-next-line no-unused-vars
 const cTable = require('console.table');
 const inquirer = require('inquirer');
@@ -6,6 +6,7 @@ const empORM = require('./orm/emporm');
 const departmentORM = require('./orm/deptorm');
 const roleORM = require('./orm/roleorm');
 const validators = require('./validators');
+const { printHelperMessage } = require('./utils');
 
 const Employee = {
   // View All Employees
@@ -15,7 +16,7 @@ const Employee = {
       const result = await empORM.getAll();
       console.table(result);
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
   },
   // View All Employees BY Manager
@@ -26,8 +27,14 @@ const Employee = {
       name: 'manager',
       type: 'input'
     }];
-    console.log(`${Chalk.yellow('Leave Manager Name Blank To Select All Employees Having Manager')}`);
+    console.log(`${chalk.yellow('Leave Manager Name Blank To Select All Employees Having Manager')}`);
+
+    await printHelperMessage();
+
     const managerAnswer = await inquirer.prompt(managerQuestion);
+    if (managerAnswer.manager.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
     try {
       // Get all employees where Manager name like the one entered above
       const employees = await empORM.get({
@@ -45,12 +52,13 @@ const Employee = {
       } else {
         // Convey to the user that there are no records
         console.log(); // Blank link for better UX
-        console.log(`${Chalk.green('No Records Found!!')}`);
+        console.log(`${chalk.green('No Records Found!!')}`);
         console.log(); // Blank link for better UX
       }
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
+    return '';
   },
 
   // View All Employees in a department
@@ -91,12 +99,12 @@ const Employee = {
       } else {
         // Else convey to the user that there are no records found
         console.log();
-        console.log(`${Chalk.green('No Records Found!!')}`);
+        console.log(`${chalk.green('No Records Found!!')}`);
         console.log(); // Blank link for better UX
       }
       return '';
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
       return '';
     }
   },
@@ -114,10 +122,17 @@ const Employee = {
       message: 'Enter Employee Lastname : ',
       name: 'emplast',
       type: 'input',
-      validate: validators.blankNameValidator
+      validate: validators.blankNameValidator,
+      when: (answer) => answer.empfirst.toUpperCase() !== '!Q'
     }
     ];
+    await printHelperMessage();
+
     const empAnswer = await inquirer.prompt(empQuestion);
+
+    if (empAnswer.empfirst.toUpperCase() === '!Q' || empAnswer.emplast.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
 
     // First Query Employee Table to check if record count is more than one
     try {
@@ -130,7 +145,7 @@ const Employee = {
       if (employees.length > 1) {
         // Tell user that more than 1 employees has same first and last name
         console.log();
-        console.log(`${Chalk.green('More than 1 record found. Select among the following to remove')}`);
+        console.log(`${chalk.green('More than 1 record found. Select among the following to remove')}`);
         console.log();
         const choices = [];
         // put the found employees into a list and show user.
@@ -160,27 +175,33 @@ const Employee = {
 
         try {
           // finally now that we have id. Delete employee using empORM.deleteRows method
-          await empORM.deleteRows(`id=${empIdToDelete}`);
-          console.log();
-          console.log(`${Chalk.green(`Employee with Empoyee Id : ${empIdToDelete} Removed!`)}`);
-          console.log();
+          const deleteResult = await empORM.deleteRows(`id=${empIdToDelete}`);
+          if (deleteResult.affectedRows > 0) {
+            console.log(`\n${chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}\n`);
+          } else {
+            console.log(`\n${chalk.green('No Records Affected By Your Criterion!')}\n`);
+          }
         } catch (err) {
-          console.log(`${Chalk.yellow(err.sqlMessage)}`);
+          console.log(`\n${chalk.yellow(err.sqlMessage)}\n`);
         }
       } else {
         // if only single employee was found matching the firstname and last name entered above
         // Then proceed to delete directly
         try {
           // Delete employee using empORM
-          await empORM.deleteRows(`first_name LIKE '%${empAnswer.empfirst}%' and last_name LIKE '%${empAnswer.emplast}%'`);
-          console.log(`${Chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}`);
+          const deleteResult = await empORM.deleteRows(`first_name LIKE '%${empAnswer.empfirst}%' and last_name LIKE '%${empAnswer.emplast}%'`);
+          if (deleteResult.affectedRows > 0) {
+            console.log(`\n${chalk.green(`employee whose first_name LIKE '%${empAnswer.empfirst}%' last_name LIKE '%${empAnswer.emplast}%' Removed!`)}\n`);
+          } else {
+            console.log(`\n${chalk.green('No Records Affected By Your Criterion!')}\n`);
+          }
         } catch (err) {
-          console.log(`${Chalk.yellow(err.sqlMessage)}`);
+          console.log(`\n${chalk.yellow(err.sqlMessage)}\n`);
         }
       }
       return '';
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`\n${chalk.yellow(err.sqlMessage)}\n`);
       return '';
     }
   },
@@ -199,7 +220,9 @@ const Employee = {
         message: 'Lastname : ',
         name: 'lastname',
         type: 'input',
-        validate: validators.blankNameValidator
+        validate: validators.blankNameValidator,
+        // Only ask this question when firstname is NOT !Q
+        when: (answer) => answer.firstname.toUpperCase() !== '!Q'
       }];
 
     // Ask the user to select department
@@ -230,7 +253,11 @@ const Employee = {
         choices: []
       }];
 
+    await printHelperMessage();
     const empAnswers = await inquirer.prompt(empQuestions);
+    if (empAnswers.firstname.toUpperCase() === '!Q' || empAnswers.lastname.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
 
     // populate department question choices
     departmentQuestion[0].choices = await departmentORM.getAllAsList();
@@ -270,13 +297,18 @@ const Employee = {
     let managerAnswer;
     if (EmployeesInDepartment.length < 1) {
       console.log();
-      console.log(`${Chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
+      console.log(`${chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
       console.log();
     } else {
       EmployeesInDepartment.forEach((emp) => {
         managerQuestion[0].choices.push(`${emp.id}:${emp.first_name} ${emp.last_name}`);
       });
+      managerQuestion[0].choices.push(new inquirer.Separator());
+      managerQuestion[0].choices.push('Back To Main Menu');
       managerAnswer = await inquirer.prompt(managerQuestion);
+      if (managerAnswer.manager.toUpperCase() === 'BACK TO MAIN MENU') {
+        return 'MAIN_MENU';
+      }
     }
 
     try {
@@ -289,11 +321,11 @@ const Employee = {
 
       if (empAddResult.affectedRows === 1) {
         console.log();
-        console.log(`${Chalk.green(`New Employee(id:'${empAddResult.insertId}') Successfully Added!`)}`);
+        console.log(`${chalk.green(`New Employee(id:'${empAddResult.insertId}') Successfully Added!`)}`);
         console.log();
       }
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
     return '';
   },
@@ -303,10 +335,10 @@ const Employee = {
     try {
       // Select all employees, sum salary and group them by department
       const result = await empORM.get({
-        sql: `SELECT d.id,d.name, sum(r.salary) as 'total_utilized_budget' FROM employee e
+        sql: `SELECT d.id,d.name, COALESCE(sum(r.salary),0) as 'total_utilized_budget' FROM employee e
         INNER JOIN role r
         on e.role_id = r.id
-        INNER JOIN department d
+        RIGHT JOIN department d
         on r.department_id=d.id
         group by d.id`,
         orderBy: 'id asc'
@@ -316,7 +348,7 @@ const Employee = {
       console.log();
     } catch (err) {
       console.log();
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
   },
 
@@ -371,7 +403,7 @@ const Employee = {
         console.table(createdResult);
       }
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
     return '';
   },
@@ -387,22 +419,28 @@ const Employee = {
         validate: validators.blankIdValidator
       }
     ];
+    await printHelperMessage();
+
     const empInitialAnswer = await inquirer.prompt(empInitialQuestion);
+    if (empInitialAnswer.empid.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
+
     // Show the employee details to the user and
     // get confirmation if he really wants to update this employee
     const showEmployee = await empORM.getAllNoJoin({
       where: `id=${empInitialAnswer.empid}`
     });
     if (showEmployee.length > 0) {
-      console.log(`${Chalk.yellow('You are about to update following employee')}`);
+      console.log(`${chalk.yellow('You are about to update following employee')}`);
       console.log();
       console.table(showEmployee);
       console.log();
     } else {
-      console.log(`${Chalk.yellow('No Records Found!')}`);
+      console.log(`\n${chalk.yellow('No Records Found!')}`);
       console.log();
       // Return if no records found
-      return;
+      return '';
     }
     const empUpdateConfirm = await inquirer.prompt([
       {
@@ -412,7 +450,7 @@ const Employee = {
       }
     ]);
     if (!empUpdateConfirm.proceed) {
-      return;
+      return '';
     }
 
     // Ask user to enter new firstname, lastname and show the defaults
@@ -427,23 +465,39 @@ const Employee = {
         message: 'Lastname : ',
         name: 'lastname',
         type: 'input',
-        default: `${showEmployee[0].last_name}`
+        default: `${showEmployee[0].last_name}`,
+        when: (answer) => answer.firstname.toUpperCase() !== '!Q'
       },
       {
         message: 'Select Role >>',
         name: 'role',
         type: 'rawlist',
-        choices: []
+        choices: [],
+        when: (answer) => {
+          if (answer.lastname) {
+            return answer.lastname.toUpperCase() !== '!Q';
+          }
+          return false;
+        }
       }
-
     ];
     empUpdateQuestions[2].choices = await roleORM.getAllAsList();
     empUpdateQuestions[2].choices.push(new inquirer.Separator());
     empUpdateQuestions[2].choices.push('Back To Main Menu');
     console.log();
-    console.log(`${Chalk.yellow('Leave empty and press enter if you want to use existing name.')}`);
-    console.log();
+    console.log(`${chalk.yellow('Leave empty and press enter if you want to use existing name.')}`);
+
+    await printHelperMessage();
+
     const empUpdateAnswer = await inquirer.prompt(empUpdateQuestions);
+    console.log(empUpdateAnswer);
+    if (empUpdateAnswer.firstname.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
+    if (empUpdateAnswer.lastname.toUpperCase() === '!Q') {
+      return 'MAIN_MENU';
+    }
+
     if (empUpdateAnswer.role.toUpperCase() === 'BACK TO MAIN MENU') {
       // eslint-disable-next-line consistent-return
       return 'MAIN_MENU';
@@ -473,7 +527,7 @@ const Employee = {
     let empUpdateManagerAnswer;
     if (EmployeesInDepartment.length < 1) {
       console.log();
-      console.log(`${Chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
+      console.log(`${chalk.yellow('No Employees in this department. \'null\' would entered for Manager Id')}`);
       console.log();
     } else {
       EmployeesInDepartment.forEach((emp) => {
@@ -498,12 +552,13 @@ const Employee = {
 
       if (empUpdateResult.affectedRows === 1) {
         console.log();
-        console.log(`${Chalk.green(`Employee(id:'${showEmployee[0].id}') Successfully Updated!`)}`);
+        console.log(`${chalk.green(`Employee(id:'${showEmployee[0].id}') Successfully Updated!`)}`);
         console.log();
       }
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
+    return '';
   }
 };
 

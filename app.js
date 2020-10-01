@@ -32,12 +32,12 @@ console.log();
 
 // Event handler when process exits
 process.on('exit', () => {
-  console.log(`Thanks for using ${chalk.magentaBright('Emp.Manager!')}`);
+  console.log(`\nThanks for using ${chalk.magentaBright('Emp.Manager!')}\n`);
 });
 
 // Event handler befor process exit
 process.on('beforeExit', () => {
-  console.log(`${chalk.magentaBright('Ok!')}`);
+  console.log(`\n${chalk.magentaBright('Ok!')}\n`);
 });
 
 /**
@@ -96,8 +96,8 @@ async function init() {
       }
     ]);
 
-    // Two blank lines on the console.Just for better looking.
-    console.log(); console.log();
+    // Blank lines on the console.Just for better looking.
+    console.log();
 
     // Switch statement to route call to approprite entities vis Employee, Department or Role
     // All calls use await syntax
@@ -112,7 +112,9 @@ async function init() {
         }
         break;
       case 'VIEW ALL EMPLOYEES BY MANAGER':
-        await Employee.viewAllEmployeesByManager();
+        if (await Employee.viewAllEmployeesByManager() === 'MAIN_MENU') {
+          continue;
+        }
         break;
       case 'ADD EMPLOYEE':
         if (await Employee.addNewEmployee() === 'MAIN_MENU') {
@@ -156,7 +158,9 @@ async function init() {
         await Department.viewAllDepartments();
         break;
       case 'ADD NEW DEPARTMENT':
-        await Department.addNewDepartment();
+        if (await Department.addNewDepartment() === 'MAIN_MENU') {
+          continue;
+        }
         break;
       case 'UPDATE DEPARTMENT':
         if (await Department.updateDepartment() === 'MAIN_MENU') {

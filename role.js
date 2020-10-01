@@ -1,10 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 const cTable = require('console.table');
 const inquirer = require('inquirer');
-const Chalk = require('chalk');
+const chalk = require('chalk');
 const roleORM = require('./orm/roleorm');
 const departmentORM = require('./orm/deptorm');
 const validators = require('./validators');
+const { printHelperMessage } = require('./utils');
 
 const Role = {
   // View All Roles for a Department
@@ -40,9 +41,10 @@ const Role = {
         where: `d.name = '${selectedDepartment.dept}'`
       });
       // Show the fetched results
+      console.log();
       console.table(roles);
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
     return '';
   },
@@ -54,7 +56,7 @@ const Role = {
       // Show the fetched results
       console.table(result);
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
   },
   // Add a new role
@@ -72,14 +74,21 @@ const Role = {
       message: 'role title : ',
       name: 'title',
       type: 'input',
-      validate: validators.blankTitleValidator
+      validate: validators.blankTitleValidator,
+      when: (answer) => answer.dept.toUpperCase() !== 'BACK TO MAIN MENU'
     },
     {
       // Ask for Salary
       message: 'role salary : ',
       name: 'salary',
       type: 'input',
-      validate: validators.salaryValidator
+      validate: validators.salaryValidator,
+      when: (answer) => {
+        if (answer.title) {
+          return answer.title.toUpperCase() !== '!Q';
+        }
+        return false;
+      }
     }];
     // Populate the department choices using departmentORM
     roleQuestions[0].choices = await departmentORM.getAllAsList();
@@ -87,9 +96,14 @@ const Role = {
     roleQuestions[0].choices.push(new inquirer.Separator());
     roleQuestions[0].choices.push('Back To Main Menu');
 
+    await printHelperMessage();
+
     // Stop further processing if the user selects 'Back to Main Menu'
     const roleAnswers = await inquirer.prompt(roleQuestions);
     if (roleAnswers.dept.toUpperCase() === 'BACK TO MAIN MENU') {
+      return 'MAIN_MENU';
+    }
+    if (roleAnswers.title.toUpperCase() === '!Q' || roleAnswers.salary.toUpperCase() === '!Q') {
       return 'MAIN_MENU';
     }
     // find the department id for this role
@@ -107,12 +121,12 @@ const Role = {
         limit: '1'
       });
       console.log();
-      console.log(`${Chalk.green('Added New Role :')}`);
+      console.log(`${chalk.green('Added New Role :')}`);
       console.log();
       console.table(addedRole);
       console.log();
     } catch (err) {
-      console.log(`${Chalk.yellow(err.sqlMessage)}`);
+      console.log(`${chalk.yellow(err.sqlMessage)}`);
     }
     return '';
   },
@@ -139,14 +153,26 @@ const Role = {
         return 'MAIN_MENU';
       }
 
+      // Get a final confirmation
+      const roleDeleteFinal = await inquirer.prompt([
+        {
+          message: `You are about to delete a role '${roleAnswer.role}'. Are you sure you want to proceed : `,
+          name: 'proceed',
+          type: 'confirm'
+        }
+      ]);
+      if (!roleDeleteFinal.proceed) {
+        return 'MAIN_MENU';
+      }
+
       try {
         // Delete role using roleORM.deleteRows method
         await roleORM.deleteRows(`title='${roleAnswer.role}'`);
         console.log();
-        console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
+        console.log(`${chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
         console.log();
       } catch (err) {
-        console.log(`${Chalk.yellow(err.sqlMessage)}`);
+        console.log(`${chalk.yellow(err.sqlMessage)}`);
       }
     } catch (e) {
       console.log(e);
@@ -170,20 +196,33 @@ const Role = {
         name: 'dept',
         type: 'rawlist',
         pageSize: 12,
-        choices: []
+        choices: [],
+        when: (answer) => answer.role.toUpperCase() !== 'BACK TO MAIN MENU'
 
       },
       {
         message: 'New role title : ',
         name: 'title',
         type: 'input',
-        validate: validators.blankTitleValidator
+        validate: validators.blankTitleValidator,
+        when: (answer) => {
+          if (answer.dept) {
+            return answer.dept.toUpperCase() !== 'BACK TO MAIN MENU';
+          }
+          return false;
+        }
       },
       {
         message: 'New role salary : ',
         name: 'salary',
         type: 'input',
-        validate: validators.salaryValidator
+        validate: validators.salaryValidator,
+        when: (answer) => {
+          if (answer.title) {
+            return answer.title.toUpperCase() !== '!Q';
+          }
+          return false;
+        }
       }
       ];
       // Populate role choices using roleORM
@@ -195,6 +234,9 @@ const Role = {
       roleQuestion[1].choices = await departmentORM.getAllAsList();
       roleQuestion[1].choices.push(new inquirer.Separator());
       roleQuestion[1].choices.push('Back To Main Menu');
+
+      await printHelperMessage();
+
       const roleAnswer = await inquirer.prompt(roleQuestion);
 
       // No further processing if user selects 'Back to Main Menu'
@@ -202,6 +244,12 @@ const Role = {
         return 'MAIN_MENU';
       }
       if (roleAnswer.dept.toUpperCase() === 'BACK TO MAIN MENU') {
+        return 'MAIN_MENU';
+      }
+      if (roleAnswer.title.toUpperCase() === '!Q') {
+        return 'MAIN_MENU';
+      }
+      if (roleAnswer.salary.toUpperCase() === '!Q') {
         return 'MAIN_MENU';
       }
       // Find department for this role
@@ -216,10 +264,10 @@ const Role = {
           }
         );
         console.log();
-        console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is Updated to New Role : '${roleAnswer.title}'!`)}`);
+        console.log(`${chalk.green(`Role : '${roleAnswer.role}' is Updated to New Role : '${roleAnswer.title}'!`)}`);
         console.log();
       } catch (err) {
-        console.log(`${Chalk.yellow(err.sqlMessage)}`);
+        console.log(`${chalk.yellow(err.sqlMessage)}`);
       }
     } catch (e) {
       console.log(e);

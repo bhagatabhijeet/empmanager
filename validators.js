@@ -29,6 +29,9 @@ async function salaryValidator(input) {
     console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary cannot be empty.')}`);
     return false;
   }
+  if (input.trim().toUpperCase() === '!Q') {
+    return true;
+  }
   const pattern = new RegExp(/^\d+(\.\d+)?$/, 'g');
   if (!pattern.test(input)) {
     console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary should be numeric.')}`);
