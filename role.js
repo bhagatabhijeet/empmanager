@@ -106,7 +106,11 @@ const Role = {
         orderBy: 'id desc',
         limit: '1'
       });
+      console.log();
+      console.log(`${Chalk.green('Added New Role :')}`);
+      console.log();
       console.table(addedRole);
+      console.log();
     } catch (err) {
       console.log(`${Chalk.yellow(err.sqlMessage)}`);
     }
@@ -138,7 +142,9 @@ const Role = {
       try {
         // Delete role using roleORM.deleteRows method
         await roleORM.deleteRows(`title='${roleAnswer.role}'`);
+        console.log();
         console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is deleted!`)}`);
+        console.log();
       } catch (err) {
         console.log(`${Chalk.yellow(err.sqlMessage)}`);
       }
@@ -171,13 +177,13 @@ const Role = {
         message: 'New role title : ',
         name: 'title',
         type: 'input',
-        validat: validators.blankTitleValidator
+        validate: validators.blankTitleValidator
       },
       {
         message: 'New role salary : ',
         name: 'salary',
         type: 'input',
-        validat: validators.salaryValidator
+        validate: validators.salaryValidator
       }
       ];
       // Populate role choices using roleORM
@@ -209,7 +215,9 @@ const Role = {
             where: `title='${roleAnswer.role}'`
           }
         );
+        console.log();
         console.log(`${Chalk.green(`Role : '${roleAnswer.role}' is Updated to New Role : '${roleAnswer.title}'!`)}`);
+        console.log();
       } catch (err) {
         console.log(`${Chalk.yellow(err.sqlMessage)}`);
       }
