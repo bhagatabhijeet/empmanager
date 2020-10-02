@@ -27,7 +27,7 @@ CREATE TABLE `role` (
   PRIMARY KEY (`id`),
   KEY `fk_dept_idx` (`department_id`),
   UNIQUE INDEX `title_UNIQUE` (`title` ASC) VISIBLE,
-  CONSTRAINT `fk_dept` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `fk_dept` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Table structure for table `employee`
