@@ -37,6 +37,10 @@ async function salaryValidator(input) {
     console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary should be numeric.')}`);
     return false;
   }
+  if (parseFloat(input) < 0 || parseFloat(input) > 99999999) {
+    console.log(`${chalk.yellow('  Invalid Salary')}${chalk.blue(' Salary should be >= 0 and < 100000000.')}`);
+    return false;
+  }
   return true;
 }
 
