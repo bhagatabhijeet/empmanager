@@ -20,7 +20,6 @@ class Database {
       host: process.env.host,
       user: process.env.user,
       password: process.env.password,
-      database: process.env.database,
       port: process.env.port,
       multipleStatements: true
     });
@@ -59,6 +58,7 @@ class Database {
       await this.executeQueryUsingFile(path.join(__dirname, '../db/schema.sql'));
     } catch (err) {
       console.log(err);
+      return;
     }
     try {
       await this.executeQueryUsingFile(path.join(__dirname, '../db/seed.sql'));
