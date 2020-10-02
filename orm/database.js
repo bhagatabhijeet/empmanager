@@ -15,14 +15,27 @@ class Database {
     this._connection = null;
   }
 
-  createConnection() {
-    this._connection = mysql.createConnection({
+  createConnection(usedb = true) {
+    const config = {
       host: process.env.host,
       user: process.env.user,
       password: process.env.password,
       port: process.env.port,
       multipleStatements: true
-    });
+    };
+    if (usedb) {
+      config.database = process.env.database;
+    }
+    this._connection = mysql.createConnection(config);
+    //   {
+    //   host: process.env.host,
+    //   user: process.env.user,
+    //   password: process.env.password,
+    //   database: process.env.database,
+    //   port: process.env.port,
+    //   multipleStatements: true
+    // }
+    // );
   }
 
   /**
@@ -31,10 +44,10 @@ class Database {
      * @description executeQuery processes the sql passed by user.
      * Note:- The use of promise
      */
-  executeQuery(sql) {
+  executeQuery(sql, usedb = true) {
     const promise = new Promise((resolve, reject) => {
       if (!this._connection) {
-        this.createConnection();
+        this.createConnection(usedb);
       }
 
       this._connection.query(sql, (err, result) => {
@@ -55,7 +68,7 @@ class Database {
      */
   async seedData() {
     try {
-      await this.executeQueryUsingFile(path.join(__dirname, '../db/schema.sql'));
+      await this.executeQueryUsingFile(path.join(__dirname, '../db/schema.sql'), false);
     } catch (err) {
       console.log(err);
       return;
@@ -78,9 +91,9 @@ class Database {
   }
 
   // Just a wrapper on executeQuery method. This method allows convinience to use sql from a file
-  async executeQueryUsingFile(filePath) {
+  async executeQueryUsingFile(filePath, usedb = true) {
     const sql = fs.readFileSync(filePath).toString();
-    return this.executeQuery(sql);
+    return this.executeQuery(sql, usedb);
   }
 }
 
