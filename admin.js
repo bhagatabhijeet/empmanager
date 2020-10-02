@@ -6,7 +6,11 @@ const adminORM = require('./orm/adminorm');
 // Instead now Admin routes to adminorm which in turn calls 'database.js'
 const Admin = {
   async seedData() {
-    await adminORM.seedData();
+    try {
+      await adminORM.seedData();
+    } catch (err) {
+      console.log(err);
+    }
   },
 };
 

@@ -2,7 +2,11 @@ const db = require('./database');
 
 class Admin {
   async seedData() {
-    await db.seedData();
+    try {
+      await db.seedData();
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
 
