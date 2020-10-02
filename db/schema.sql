@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS `empdb`;
+
 -- Create Database
 CREATE DATABASE  IF NOT EXISTS `empdb` ;
 
