@@ -85,9 +85,9 @@ class EmployeeORM {
             employee e
             LEFT JOIN
         employee e1 ON e.manager_id = e1.id
-            INNER JOIN
+            LEFT JOIN
         role r ON e.role_id = r.id
-            INNER JOIN
+            LEFT JOIN
         department d ON r.department_id = d.id`;
     if (params.where) {
       sqlQuery += ` WHERE ${params.where}`;
