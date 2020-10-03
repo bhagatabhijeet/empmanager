@@ -22,6 +22,8 @@ Emp. Manager  is a CLI application to view and manage the departments, roles, an
 Emp. Manager is a CLI application to view and manage the departments, roles, and employees. 
 
 ## Demo
+* This is around 12 minutes of end to end demo. Please watch till end for all the operations.
+--- 
 ![Demo](https://github.com/bhagatabhijeet/empmanager/raw/master/readme_assets/empmanagerDemo.gif)
 
 ## Installation
